@@ -1695,7 +1695,6 @@ export default function App() {
       }
     };
     window.addEventListener('keydown', handleKeyDown, { passive: false });
-    document.addEventListener('keydown', handleKeyDown, { passive: false });
     // Tizen hardware back event
     const handleTizenHwKey = (ev) => {
       if (ev && ev.keyName === 'back') {
@@ -1717,7 +1716,6 @@ export default function App() {
     window.addEventListener('tizenhwkey', handleTizenHwKey, { passive: false });
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
-      document.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('tizenhwkey', handleTizenHwKey);
     };
   }, []);
