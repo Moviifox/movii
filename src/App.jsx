@@ -634,6 +634,22 @@ const Modal = ({ movie, onClose }) => {
     const handleKeyDown = (e) => {
       // Normal modal key handling (no iframe mode)
       if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) e.preventDefault();
+      // TV remote Back normalization inside modal
+      const isTvBackKey = (e.key === 'Back' || e.key === 'GoBack' || e.key === 'BrowserBack');
+      const isTvBackCode = (e.keyCode === 10009 || e.keyCode === 461);
+      if (isTvBackKey || isTvBackCode) {
+        try { e.preventDefault(); } catch {}
+        if (showDescPopup) {
+          if (window.history.length > 0) {
+            try { window.history.back(); } catch { setShowDescPopup(false); }
+          } else {
+            setShowDescPopup(false);
+          }
+        } else {
+          onClose();
+        }
+        return;
+      }
       if (e.key === 'Escape' || e.key === 'Backspace') {
         if (showDescPopup) {
           if (window.history.length > 0) {
