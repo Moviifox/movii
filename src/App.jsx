@@ -1222,6 +1222,39 @@ export default function App() {
       });
   }, []);
 
+
+  // Push a history state when opening modal or leaving navbar so hardware back can work on TV webapps
+  useEffect(() => {
+    try {
+      if (selectedMovie) {
+        window.history.pushState({ modal: true }, '');
+      } else if (activeRow !== -2) {
+        window.history.pushState({ focus: true }, '');
+      }
+    } catch {}
+  }, [selectedMovie, activeRow]);
+
+  // Global popstate handler: close modal if open, else move focus back to navbar
+  useEffect(() => {
+    const onPop = () => {
+      if (selectedMovie) {
+        setSelectedMovie(null);
+        return;
+      }
+      if (activeRow !== -2) {
+        const activeIdx = NAV_ITEMS.findIndex(item => item.id === activeTab);
+        let target = 0;
+        if (target === activeIdx) target = 1;
+        setLastActiveRow(activeRow);
+        setLastActiveCol(activeCol);
+        setActiveRow(-2);
+        setActiveCol(target);
+      }
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, [selectedMovie, activeRow, activeTab, activeCol]);
+
   useEffect(() => {
     try {
       const s = sessionStorage.getItem(APP_STATE_KEY);
@@ -1458,7 +1491,7 @@ export default function App() {
 
       if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' ', 'Enter'].includes(e.key)) { e.preventDefault(); }
       // TV remote Back normalization (Tizen/WebOS/Android TV)
-      const isTvBackKey = (e.key === 'Back' || e.key === 'GoBack' || e.key === 'BrowserBack');
+      const isTvBackKey = (e.key === 'Back' || e.key === 'GoBack' || e.key === 'BrowserBack' || e.key === 'XF86Back' || e.key === 'HistoryBack');
       const isTvBackCode = (e.keyCode === 10009 || e.keyCode === 461);
       if (isTvBackKey || isTvBackCode) {
         e.preventDefault();
@@ -1661,8 +1694,32 @@ export default function App() {
            break;
       }
     };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown, { passive: false });
+    document.addEventListener('keydown', handleKeyDown, { passive: false });
+    // Tizen hardware back event
+    const handleTizenHwKey = (ev) => {
+      if (ev && ev.keyName === 'back') {
+        try { ev.preventDefault?.(); } catch {}
+        const {
+          activeRow: currentActiveRow, activeCol: currentActiveCol, activeTab,
+          lastActiveRow, lastActiveCol, NAV_ITEMS
+        } = stateRef.current;
+        if (currentActiveRow !== -2) {
+          const activeIdx = NAV_ITEMS.findIndex(item => item.id === activeTab);
+          let target = 0; if (target === activeIdx) target = 1;
+          setLastActiveRow(currentActiveRow);
+          setLastActiveCol(currentActiveCol);
+          setActiveRow(-2);
+          setActiveCol(target);
+        }
+      }
+    };
+    window.addEventListener('tizenhwkey', handleTizenHwKey, { passive: false });
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('tizenhwkey', handleTizenHwKey);
+    };
   }, []);
 
   // Disable mouse/touch interactions globally (remote-only)
