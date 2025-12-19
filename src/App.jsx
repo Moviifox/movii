@@ -1372,6 +1372,7 @@ export default function App() {
   const APP_STATE_KEY = 'moviifox_app_state_v1';
   const pendingRestore = useRef(null);
   const actionSuppressUntil = useRef(0);
+  const previousActiveTab = useRef(activeTab);
 
 
   useEffect(() => {
@@ -1484,17 +1485,21 @@ export default function App() {
 
 
   useEffect(() => {
+    const previousTab = previousActiveTab.current;
+
     if (['y_content', 'k_content', 'festival'].includes(activeTab)) {
         setActiveRow(-1);
         window.scrollTo(0, 0);
         setTimeout(() => window.scrollTo(0, 0), 50);
     }
-    
+
     rowRefMap.current = {};
-    if(activeTab === 'search') {
-        setSearchQuery('');
-        setActiveRow(-1); 
+
+    if (activeTab === 'search' && previousTab !== 'search') {
+        setActiveRow(-1);
     }
+
+    previousActiveTab.current = activeTab;
   }, [activeTab]);
 
 
