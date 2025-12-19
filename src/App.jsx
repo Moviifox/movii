@@ -356,7 +356,7 @@ const ViewMoreCard = ({ isFocused, onClick, innerRef }) => (
     ref={innerRef}
     onClick={onClick}
     className={`
-      relative flex-none w-[15vw] aspect-[16/9] rounded-[2vw] cursor-pointer transition-all duration-300 ease-out
+      relative flex-none w-[14vw] aspect-[16/9] rounded-[2vw] cursor-pointer transition-all duration-300 ease-out
       group flex items-center justify-center bg-zinc-900 border border-white/10
       ${isFocused 
         ? 'scale-110 z-20 shadow-[0_0_2vw_rgba(255,255,255,0.3)] ring-[0.3vw] ring-white/80' 
@@ -1949,3 +1949,4 @@ export default function App() {
     </div>
   );
 }
+
