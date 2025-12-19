@@ -136,7 +136,7 @@ const getCategoriesForTab = (movies, activeTab) => {
     return priorityCategories.map(cat => ({
         id: `cat-${cat.key}`,
         title: cat.title,
-        items: categoriesMap[cat.title] || []
+        items: (categoriesMap[cat.title] || []).slice(0, 3)
     })).filter(cat => cat.items.length > 0);
   }
 };
@@ -356,7 +356,7 @@ const ViewMoreCard = ({ isFocused, onClick, innerRef }) => (
     ref={innerRef}
     onClick={onClick}
     className={`
-      relative flex-none w-[12vw] aspect-[16/9] rounded-[2vw] cursor-pointer transition-all duration-300 ease-out
+      relative flex-none w-[15vw] aspect-[16/9] rounded-[2vw] cursor-pointer transition-all duration-300 ease-out
       group flex items-center justify-center bg-zinc-900 border border-white/10
       ${isFocused 
         ? 'scale-110 z-20 shadow-[0_0_2vw_rgba(255,255,255,0.3)] ring-[0.3vw] ring-white/80' 
@@ -571,13 +571,16 @@ const Row = ({ title, items, rowIndex, activeRow, activeCol, onMovieClick, onVie
       const el = rowRefMap.current?.[rowIndex]?.[activeCol] || container.children[activeCol];
       if (el) {
         try {
-          el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+          el.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
         } catch {
           try {
             const rect = el.getBoundingClientRect();
             const cRect = container.getBoundingClientRect();
-            const delta = (rect.left + rect.width / 2) - (cRect.left + cRect.width / 2);
-            container.scrollTo({ left: container.scrollLeft + delta, behavior: 'smooth' });
+            if (rect.left < cRect.left) {
+              container.scrollTo({ left: container.scrollLeft - (cRect.left - rect.left), behavior: 'smooth' });
+            } else if (rect.right > cRect.right) {
+              container.scrollTo({ left: container.scrollLeft + (rect.right - cRect.right), behavior: 'smooth' });
+            }
           } catch {}
         }
       }
@@ -592,7 +595,6 @@ const Row = ({ title, items, rowIndex, activeRow, activeCol, onMovieClick, onVie
           <MovieCard key={`${item.id}-${rowIndex}`} movie={item} isFocused={isActive && activeCol === colIndex} onClick={onMovieClick} innerRef={el => { if(!rowRefMap.current[rowIndex]) rowRefMap.current[rowIndex] = []; rowRefMap.current[rowIndex][colIndex] = el; }} />
         ))}
         <ViewMoreCard isFocused={isActive && activeCol === limitedItems.length} onClick={() => onViewMore(title)} innerRef={el => { if(!rowRefMap.current[rowIndex]) rowRefMap.current[rowIndex] = []; rowRefMap.current[rowIndex][limitedItems.length] = el; }} />
-        <div className="min-w-[50vw] flex-none" /> 
       </div>
     </div>
   );
