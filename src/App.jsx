@@ -460,7 +460,7 @@ const MovieCard = ({ movie, isFocused, onClick, innerRef }) => {
         {/* Type Badge (Top Right) aligned with GridMovieCard */}
         {movie.type && (
             <div className="absolute top-[0.8vw] right-[0.8vw] flex gap-[0.3vw] z-10">
-                <span className="bg-black/40 backdrop-blur-md text-white/90 text-[0.7vw] px-[0.5vw] py-[0.15vw] rounded-md border border-white/10 flex items-center gap-1 font-light uppercase tracking-wider">
+                <span className="bg-black/40 backdrop-blur-md text-white/90 text-[1vw] px-[0.5vw] py-[0.15vw] rounded-[0.8vw] border border-white/10 flex items-center gap-1 font-light uppercase tracking-wider">
                 {movie.type}
                 </span>
             </div>
