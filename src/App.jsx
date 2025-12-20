@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 
 
 // ==========================================
@@ -772,6 +772,50 @@ const Modal = ({ movie, onClose }) => {
   const titleRef = useRef(null);
   const epNavThrottleRef = useRef(0);
   const iframeRef = useRef(null);
+  const awaitingFullscreenPop = useRef(false);
+  const fullscreenPopFallbackTimer = useRef(null);
+
+  const clearFullscreenFallback = useCallback(() => {
+    if (fullscreenPopFallbackTimer.current) {
+      clearTimeout(fullscreenPopFallbackTimer.current);
+      fullscreenPopFallbackTimer.current = null;
+    }
+  }, []);
+
+  const closeFullscreen = useCallback((preferHistory = false) => {
+    if (!fullscreenSrc) return;
+
+    const overlayStateIsFullscreen = (() => {
+      try {
+        return window.history?.state?.overlay === 'fullscreen';
+      } catch {
+        return false;
+      }
+    })();
+
+    if (preferHistory && overlayStateIsFullscreen) {
+      awaitingFullscreenPop.current = true;
+      try {
+        window.history.back();
+      } catch {
+        awaitingFullscreenPop.current = false;
+        clearFullscreenFallback();
+        setFullscreenSrc(null);
+        return;
+      }
+      clearFullscreenFallback();
+      fullscreenPopFallbackTimer.current = setTimeout(() => {
+        if (awaitingFullscreenPop.current) {
+          awaitingFullscreenPop.current = false;
+          setFullscreenSrc(null);
+        }
+      }, 300);
+    } else {
+      awaitingFullscreenPop.current = false;
+      clearFullscreenFallback();
+      setFullscreenSrc(null);
+    }
+  }, [fullscreenSrc, clearFullscreenFallback]);
 
   const openFullscreen = (url) => {
     if (!url) return;
@@ -800,8 +844,7 @@ const Modal = ({ movie, onClose }) => {
       if (fullscreenSrc) {
         if (isTvBackKey || isTvBackCode || e.key === 'Escape' || e.key === 'Backspace') {
           try { e.preventDefault(); } catch {}
-          try { window.history.back(); }
-          catch { setFullscreenSrc(null); }
+          setFullscreenSrc(null);
         }
         return;
       }
@@ -1067,6 +1110,13 @@ const Modal = ({ movie, onClose }) => {
       window.removeEventListener('keydown', handleFocusRestore, true);
     };
   }, [fullscreenSrc]);
+
+  useEffect(() => {
+    if (!fullscreenSrc) {
+      awaitingFullscreenPop.current = false;
+      clearFullscreenFallback();
+    }
+  }, [fullscreenSrc, clearFullscreenFallback]);
 
   // Push a history state when opening overlays so hardware back triggers popstate
   useEffect(() => {
