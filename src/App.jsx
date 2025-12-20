@@ -1119,6 +1119,13 @@ const Modal = ({ movie, onClose }) => {
     }
   }, [fullscreenSrc, clearFullscreenFallback]);
 
+  useEffect(() => {
+    try { window.__moviifoxFullscreenOpen = !!fullscreenSrc; } catch {}
+    return () => {
+      try { window.__moviifoxFullscreenOpen = false; } catch {}
+    };
+  }, [fullscreenSrc]);
+
   // Push a history state when opening overlays so hardware back triggers popstate
   useEffect(() => {
     if (fullscreenSrc) {
@@ -1548,6 +1555,9 @@ export default function App() {
   // Global popstate handler: close modal if open, else move focus back to navbar
   useEffect(() => {
     const onPop = () => {
+      if (typeof window !== 'undefined' && window.__moviifoxFullscreenOpen) {
+        return;
+      }
       if (typeof window !== 'undefined' && window.__moviifoxSuppressModalPop) {
         return;
       }
