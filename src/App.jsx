@@ -1132,10 +1132,13 @@ const Modal = ({ movie, onClose }) => {
   useEffect(() => {
     const onPop = () => {
       if (fullscreenSrc) {
+        try { window.__moviifoxSuppressModalPop = true; } catch {}
         awaitingFullscreenPop.current = false;
         clearFullscreenFallback();
         setFullscreenSrc(null);
-        try { window.__moviifoxSuppressModalPop = false; } catch {}
+        setTimeout(() => {
+          try { window.__moviifoxSuppressModalPop = false; } catch {}
+        }, 0);
         return;
       }
       if (showDescPopup) {
@@ -1546,7 +1549,6 @@ export default function App() {
   useEffect(() => {
     const onPop = () => {
       if (typeof window !== 'undefined' && window.__moviifoxSuppressModalPop) {
-        window.__moviifoxSuppressModalPop = false;
         return;
       }
 
