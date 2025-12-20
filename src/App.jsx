@@ -746,8 +746,6 @@ const Hero = React.memo(({ movie, isFocused, activeBtnIndex, onPlay, isModalOpen
   return (
     <div className={`relative w-full h-[95vh] rounded-b-[4vw] overflow-hidden transition-all duration-1000 ease-out ${isFocused ? 'scale-100 brightness-100 blur-none' : `scale-[0.98] brightness-50 opacity-60 ${TV_PERF_MODE ? 'blur-none' : 'blur-[0.2vw]'}`}`}>
       <div className="absolute inset-0 bg-black">
-        <div className={`absolute top-0 right-0 w-[42vw] h-[42vw] bg-purple-600/20 rounded-full ${TV_PERF_MODE ? '' : 'blur-[6vw] mix-blend-screen animate-pulse-slow'}`} />
-        <div className={`absolute bottom-0 left-0 w-[31vw] h-[31vw] bg-blue-600/20 rounded-full ${TV_PERF_MODE ? '' : 'blur-[5vw] mix-blend-screen animate-pulse-slow delay-1000'}`} />
       </div>
       
       {/* Background Image (Always present as base) */}
@@ -2303,8 +2301,10 @@ export default function App() {
   return (
     <div className="min-h-screen bg-black text-white font-sans overflow-x-hidden selection:bg-white selection:text-black pointer-events-none">
       <Navbar isFocused={activeRow === -2} activeNavIndex={activeCol} activeTab={activeTab} onSelect={handleNavbarSelect} />
-      {renderContent()}
-      {selectedMovie && <Modal movie={selectedMovie} onClose={() => setSelectedMovie(null)} />}
+      <div className={`transition-all duration-300 ${activeRow === -2 ? 'blur-sm' : 'blur-none'}`}>
+        {renderContent()}
+        {selectedMovie && <Modal movie={selectedMovie} onClose={() => setSelectedMovie(null)} />}
+      </div>
       <style>{`
         @font-face { font-family: 'Foxgraphie'; src: url('https://raw.githubusercontent.com/Moviifox/trailer/refs/heads/main/foxgraphie_light.otf'); font-weight: 300; }
         @font-face { font-family: 'Foxgraphie'; src: url('https://raw.githubusercontent.com/Moviifox/trailer/refs/heads/main/foxgraphie_regular.otf'); font-weight: 400; }
