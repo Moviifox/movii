@@ -368,7 +368,7 @@ const Navbar = ({ isFocused, activeNavIndex, activeTab, onSelect }) => (
   <nav className={`fixed top-[3vw] left-1/2 -translate-x-1/2 z-50 transition-all duration-500 ease-out`}>
     <div className={`
       flex items-center gap-[0.8vw] p-[0.8vw] rounded-full border border-white/10
-      ${TV_PERF_MODE ? 'bg-black/60' : 'backdrop-blur-2xl bg-black/40'} shadow-[0_0.5vw_2vw_rgba(0,0,0,0.5)]
+      backdrop-blur-md bg-black/40 shadow-[0_0.5vw_2vw_rgba(0,0,0,0.5)]
       transition-all duration-500
       ${isFocused ? 'scale-110 shadow-[0_0_3vw_rgba(255,255,255,0.15)] ring-1 ring-white/20' : 'scale-100'}
     `}>
@@ -392,7 +392,7 @@ const Navbar = ({ isFocused, activeNavIndex, activeTab, onSelect }) => (
           >
             <Icon className="w-[1.8vw] h-[1.8vw]" strokeWidth={2.5} />
             {isFocusedItem && (
-              <span className={`absolute -bottom-[2.5vw] bg-zinc-800/90 text-white text-[0.9vw] px-[0.8vw] py-[0.2vw] rounded-md ${TV_PERF_MODE ? '' : 'backdrop-blur-md'} opacity-0 animate-fade-in-up font-medium whitespace-nowrap`}>
+              <span className="absolute -bottom-[2.5vw] bg-zinc-800/90 text-white text-[0.9vw] px-[0.8vw] py-[0.2vw] rounded-md backdrop-blur-md opacity-0 animate-fade-in-up font-medium whitespace-nowrap">
                 {item.label}
               </span>
             )}
