@@ -315,7 +315,7 @@ const FEATURED_MOVIE = {
 
 const NAV_ITEMS = [
   { id: 'home', icon: Home, label: 'หน้าแรก' },
-  //{ id: 'festival', icon: Ghost, label: 'ฮาโลวีน' }, //แก้ Navbar หน้า festival ตรงนี้
+  { id: 'festival', icon: Ghost, label: 'ฮาโลวีน' }, //แก้ Navbar หน้า festival ตรงนี้
   { id: 'movies', icon: Film, label: 'ภาพยนตร์/ซีรีส์' },
   { id: 'search', icon: Search, label: 'ค้นหา' },
   //{ id: 'account', icon: User, label: 'บัญชี' }
@@ -2243,4 +2243,5 @@ export default function App() {
     </div>
   );
 }
+
 
