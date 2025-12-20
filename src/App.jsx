@@ -800,7 +800,8 @@ const Modal = ({ movie, onClose }) => {
       if (fullscreenSrc) {
         if (isTvBackKey || isTvBackCode || e.key === 'Escape' || e.key === 'Backspace') {
           try { e.preventDefault(); } catch {}
-          setFullscreenSrc(null);
+          try { window.history.back(); }
+          catch { setFullscreenSrc(null); }
         }
         return;
       }
@@ -1069,8 +1070,10 @@ const Modal = ({ movie, onClose }) => {
 
   // Push a history state when opening overlays so hardware back triggers popstate
   useEffect(() => {
-    if (showDescPopup || fullscreenSrc) {
-      try { window.history.pushState({ overlay: true }, ''); } catch {}
+    if (fullscreenSrc) {
+      try { window.history.pushState({ overlay: 'fullscreen' }, ''); } catch {}
+    } else if (showDescPopup) {
+      try { window.history.pushState({ overlay: 'desc' }, ''); } catch {}
     }
   }, [showDescPopup, fullscreenSrc]);
 
@@ -1079,11 +1082,13 @@ const Modal = ({ movie, onClose }) => {
     const onPop = () => {
       if (fullscreenSrc) {
         setFullscreenSrc(null);
-      } else if (showDescPopup) {
-        setShowDescPopup(false);
-      } else {
-        onClose();
+        return;
       }
+      if (showDescPopup) {
+        setShowDescPopup(false);
+        return;
+      }
+      onClose();
     };
     window.addEventListener('popstate', onPop);
     return () => window.removeEventListener('popstate', onPop);
