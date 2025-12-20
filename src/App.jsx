@@ -795,6 +795,7 @@ const Modal = ({ movie, onClose }) => {
 
     if (preferHistory && overlayStateIsFullscreen) {
       awaitingFullscreenPop.current = true;
+      try { window.__moviifoxSuppressModalPop = true; } catch {}
       try {
         window.history.back();
       } catch {
@@ -844,7 +845,7 @@ const Modal = ({ movie, onClose }) => {
       if (fullscreenSrc) {
         if (isTvBackKey || isTvBackCode || e.key === 'Escape' || e.key === 'Backspace') {
           try { e.preventDefault(); } catch {}
-          setFullscreenSrc(null);
+          closeFullscreen(true);
         }
         return;
       }
@@ -1131,7 +1132,10 @@ const Modal = ({ movie, onClose }) => {
   useEffect(() => {
     const onPop = () => {
       if (fullscreenSrc) {
+        awaitingFullscreenPop.current = false;
+        clearFullscreenFallback();
         setFullscreenSrc(null);
+        try { window.__moviifoxSuppressModalPop = false; } catch {}
         return;
       }
       if (showDescPopup) {
@@ -1541,6 +1545,11 @@ export default function App() {
   // Global popstate handler: close modal if open, else move focus back to navbar
   useEffect(() => {
     const onPop = () => {
+      if (typeof window !== 'undefined' && window.__moviifoxSuppressModalPop) {
+        window.__moviifoxSuppressModalPop = false;
+        return;
+      }
+
       if (selectedMovie) {
         setSelectedMovie(null);
         return;
