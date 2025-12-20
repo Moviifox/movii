@@ -9,6 +9,29 @@ const SUPABASE_KEY = 'sb_publishable_uqhhhD0Oj4TegojFRkHTSQ_Ecxtf4J_';
 const CSV_DATA_URL = "https://moviifox.free.nf/movies_data.csv";
 
 
+const IS_GOOGLE_TV = (() => {
+  try {
+    const ua = String(navigator?.userAgent || '').toLowerCase();
+    if (!ua) return false;
+    // Android/Google TV user agents commonly include android + tv
+    if (ua.includes('android') && ua.includes('tv')) return true;
+    if (ua.includes('googletv')) return true;
+    return false;
+  } catch {
+    return false;
+  }
+})();
+
+const TV_PERF_MODE = (() => {
+  try {
+    const reducedMotion = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    return IS_GOOGLE_TV || reducedMotion;
+  } catch {
+    return IS_GOOGLE_TV;
+  }
+})();
+
+
 // ==========================================
 // 🖼️ ICONS (Inline SVG replacements)
 // ==========================================
@@ -175,6 +198,22 @@ const parseThaiDate = (input) => {
 };
 
 
+ const FALLBACK_IMAGE_URL = "http://moviifox.x10.mx/aset/tv_banner2.webp";
+
+const getYearFromString = (dateString) => {
+  if (!dateString) return '';
+  if (/^\d{4}$/.test(dateString)) return dateString;
+  const match = String(dateString).match(/\d{4}/);
+  return match ? match[0] : dateString;
+};
+
+const handleImageError = (e) => {
+  try {
+    const target = e?.currentTarget || e?.target;
+    if (target && target.src !== FALLBACK_IMAGE_URL) target.src = FALLBACK_IMAGE_URL;
+  } catch {}
+};
+
 // ฟังก์ชันแปลงข้อมูลจาก Supabase ให้เป็นรูปแบบที่ App ใช้
 const transformSupabaseData = (data) => {
   if (!Array.isArray(data)) return []; 
@@ -329,7 +368,7 @@ const Navbar = ({ isFocused, activeNavIndex, activeTab, onSelect }) => (
   <nav className={`fixed top-[3vw] left-1/2 -translate-x-1/2 z-50 transition-all duration-500 ease-out`}>
     <div className={`
       flex items-center gap-[0.8vw] p-[0.8vw] rounded-full border border-white/10
-      backdrop-blur-2xl bg-black/40 shadow-[0_0.5vw_2vw_rgba(0,0,0,0.5)]
+      ${TV_PERF_MODE ? 'bg-black/60' : 'backdrop-blur-2xl bg-black/40'} shadow-[0_0.5vw_2vw_rgba(0,0,0,0.5)]
       transition-all duration-500
       ${isFocused ? 'scale-110 shadow-[0_0_3vw_rgba(255,255,255,0.15)] ring-1 ring-white/20' : 'scale-100'}
     `}>
@@ -353,7 +392,7 @@ const Navbar = ({ isFocused, activeNavIndex, activeTab, onSelect }) => (
           >
             <Icon className="w-[1.8vw] h-[1.8vw]" strokeWidth={2.5} />
             {isFocusedItem && (
-              <span className="absolute -bottom-[2.5vw] bg-zinc-800/90 text-white text-[0.9vw] px-[0.8vw] py-[0.2vw] rounded-md backdrop-blur-md opacity-0 animate-fade-in-up font-medium whitespace-nowrap">
+              <span className={`absolute -bottom-[2.5vw] bg-zinc-800/90 text-white text-[0.9vw] px-[0.8vw] py-[0.2vw] rounded-md ${TV_PERF_MODE ? '' : 'backdrop-blur-md'} opacity-0 animate-fade-in-up font-medium whitespace-nowrap`}>
                 {item.label}
               </span>
             )}
@@ -381,7 +420,7 @@ const BrandRow = ({ activeRow, activeCol, rowIndex, rowRefMap }) => {
 
 
   return (
-    <div className={`py-[3.5vw] transition-all duration-700 ease-out relative ${isActive ? 'opacity-100 scale-100 blur-none z-50' : 'opacity-30 scale-95 blur-[0.1vw] z-0'}`}>
+    <div className={`py-[3.5vw] transition-all duration-700 ease-out relative ${isActive ? 'opacity-100 scale-100 blur-none z-50' : `opacity-30 scale-95 ${TV_PERF_MODE ? 'blur-none' : 'blur-[0.1vw]'} z-0`}`}>
       <div 
         ref={containerRef}
         className="flex gap-[2vw] overflow-visible px-[4.2vw] w-full"
@@ -405,7 +444,8 @@ const BrandRow = ({ activeRow, activeCol, rowIndex, rowRefMap }) => {
                src={brand.image} 
                alt={`Brand ${index + 1}`}
                className="w-full h-full object-cover object-center"
-               onError={(e) => { e.target.src = "http://moviifox.x10.mx/aset/tv_banner2.webp"; }} // Brand Fallback
+               decoding="async"
+               onError={handleImageError} // Brand Fallback
              />
              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
           </div>
@@ -417,7 +457,7 @@ const BrandRow = ({ activeRow, activeCol, rowIndex, rowRefMap }) => {
 
 
 // Standard Card for Rows
-const MovieCard = ({ movie, isFocused, onClick, innerRef }) => {
+const MovieCard = React.memo(({ movie, isFocused, onClick, innerRef }) => {
   // Logic สำหรับเช็คว่าชื่อยาวเกินหรือไม่
   const titleRef = useRef(null);
   const subtitleRef = useRef(null);
@@ -425,20 +465,30 @@ const MovieCard = ({ movie, isFocused, onClick, innerRef }) => {
   const [shouldScrollSubtitle, setShouldScrollSubtitle] = useState(false);
 
 
+  const handleClick = useCallback(() => {
+    onClick(movie);
+  }, [onClick, movie]);
+
+
   useEffect(() => {
+    if (!isFocused) {
+      if (shouldScrollTitle) setShouldScrollTitle(false);
+      if (shouldScrollSubtitle) setShouldScrollSubtitle(false);
+      return;
+    }
     if (titleRef.current) {
-        setShouldScrollTitle(titleRef.current.scrollWidth > titleRef.current.clientWidth);
+      setShouldScrollTitle(titleRef.current.scrollWidth > titleRef.current.clientWidth);
     }
     if (subtitleRef.current) {
-        setShouldScrollSubtitle(subtitleRef.current.scrollWidth > subtitleRef.current.clientWidth);
+      setShouldScrollSubtitle(subtitleRef.current.scrollWidth > subtitleRef.current.clientWidth);
     }
-  }, [movie.title, movie.title_alt]);
+  }, [isFocused, movie.title, movie.title_alt]);
 
 
   return (
     <div 
         ref={innerRef}
-        onClick={() => onClick(movie)}
+        onClick={handleClick}
         className={`
         relative flex-none w-[24vw] aspect-[16/9] rounded-[2vw] cursor-pointer transition-all duration-300 ease-out
         group
@@ -453,7 +503,8 @@ const MovieCard = ({ movie, isFocused, onClick, innerRef }) => {
             alt={movie.title} 
             className="w-full h-full object-cover transition-transform duration-700"
             loading="lazy"
-            onError={(e) => { e.target.src = "http://moviifox.x10.mx/aset/tv_banner2.webp"; }} // Card Fallback
+            decoding="async"
+            onError={handleImageError} // Card Fallback
         />
         <div className={`absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent transition-opacity duration-300 ${isFocused ? 'opacity-100' : 'opacity-0'}`} />
         
@@ -469,10 +520,7 @@ const MovieCard = ({ movie, isFocused, onClick, innerRef }) => {
 
 
         {/* Floating Title */}
-        <div className={`
-        absolute -bottom-[5vw] left-[0.8vw] right-[0.8vw] text-center transition-all duration-300
-        ${isFocused ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-[1.5vw]'}
-        `}>
+        <div className={`absolute -bottom-[5vw] left-[0.8vw] right-[0.8vw] text-center transition-all duration-300 ${isFocused ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-[1.5vw]'}`}>
         {/* Container สำหรับชื่อหลัก */}
         <div className="w-full overflow-hidden whitespace-nowrap px-[0.5vw]">
             <h3 
@@ -504,11 +552,11 @@ const MovieCard = ({ movie, isFocused, onClick, innerRef }) => {
         </div>
     </div>
   );
-};
+});
 
 
 // Special "View More" Card
-const ViewMoreCard = ({ isFocused, onClick, innerRef }) => (
+const ViewMoreCard = React.memo(({ isFocused, onClick, innerRef }) => (
   <div 
     ref={innerRef}
     onClick={onClick}
@@ -525,24 +573,22 @@ const ViewMoreCard = ({ isFocused, onClick, innerRef }) => (
         <span className={`text-[1vw] font-medium ${isFocused ? 'text-white' : 'text-zinc-400'}`}>ดูทั้งหมด</span>
      </div>
   </div>
-);
+));
 
 
-const GridMovieCard = ({ movie, isFocused, onClick, innerRef }) => {
-  const getYear = (dateString) => {
-      if (!dateString) return '';
-      if (/^\d{4}$/.test(dateString)) return dateString;
-      const match = String(dateString).match(/\d{4}/);
-      return match ? match[0] : dateString;
-  };
-  
-  const displayYear = getYear(movie.year);
+const GridMovieCard = React.memo(({ movie, isFocused, onClick, innerRef }) => {
+  const displayYear = getYearFromString(movie.year);
+
+
+  const handleClick = useCallback(() => {
+    onClick(movie);
+  }, [onClick, movie]);
 
 
   return (
     <div 
       ref={innerRef}
-      onClick={() => onClick(movie)}
+      onClick={handleClick}
       className={`
         relative w-full aspect-[16/9] rounded-[1.5vw] cursor-pointer transition-all duration-300
         group overflow-hidden
@@ -558,7 +604,8 @@ const GridMovieCard = ({ movie, isFocused, onClick, innerRef }) => {
             alt={movie.title} 
             className="w-full h-full object-cover transition-transform duration-500" 
             loading="lazy" 
-            onError={(e) => { e.target.src = "http://moviifox.x10.mx/aset/tv_banner2.webp"; }} /* Card Fallback */
+            decoding="async"
+            onError={handleImageError} /* Card Fallback */
          />
          
          {/* Gradient Overlay */}
@@ -591,10 +638,10 @@ const GridMovieCard = ({ movie, isFocused, onClick, innerRef }) => {
       </div>
     </div>
   );
-};
+});
 
 
-const Hero = ({ movie, isFocused, activeBtnIndex, onPlay }) => {
+const Hero = React.memo(({ movie, isFocused, activeBtnIndex, onPlay, isModalOpen }) => {
   // Hooks MUST be at the top level
   const [videoReady, setVideoReady] = useState(false);
   const [canShowVideo, setCanShowVideo] = useState(false);
@@ -642,6 +689,34 @@ const Hero = ({ movie, isFocused, activeBtnIndex, onPlay }) => {
   }, [canShowVideo, retryKey]);
 
 
+  useEffect(() => {
+    // Reduce decode/CPU when hero is not focused (common on TV navigation)
+    const v = videoRef.current;
+    if (!v) return;
+    try {
+      if (isModalOpen || !isFocused || !canShowVideo) {
+        v.pause();
+      }
+    } catch {}
+  }, [isModalOpen, isFocused, canShowVideo, movie.id]);
+
+
+  useEffect(() => {
+    // Resume playback when focus returns (TV navigation may pause video)
+    const v = videoRef.current;
+    if (!v) return;
+    if (isModalOpen || !isFocused || !canShowVideo) return;
+    try {
+      if (v.paused) {
+        const p = v.play();
+        if (p && typeof p.then === 'function') {
+          p.catch(() => {});
+        }
+      }
+    } catch {}
+  }, [isModalOpen, isFocused, canShowVideo, retryKey, movie.id]);
+
+
   const handleVideoError = () => {
       console.warn("Video failed to load/play, retrying...", movie.featured_video);
       setVideoReady(false);
@@ -669,18 +744,19 @@ const Hero = ({ movie, isFocused, activeBtnIndex, onPlay }) => {
 
 
   return (
-    <div className={`relative w-full h-[95vh] rounded-b-[4vw] overflow-hidden transition-all duration-1000 ease-out ${isFocused ? 'scale-100 brightness-100 blur-none' : 'scale-[0.98] brightness-50 opacity-60 blur-[0.2vw]'}`}>
+    <div className={`relative w-full h-[95vh] rounded-b-[4vw] overflow-hidden transition-all duration-1000 ease-out ${isFocused ? 'scale-100 brightness-100 blur-none' : `scale-[0.98] brightness-50 opacity-60 ${TV_PERF_MODE ? 'blur-none' : 'blur-[0.2vw]'}`}`}>
       <div className="absolute inset-0 bg-black">
-        <div className="absolute top-0 right-0 w-[42vw] h-[42vw] bg-purple-600/20 rounded-full blur-[6vw] mix-blend-screen animate-pulse-slow" />
-        <div className="absolute bottom-0 left-0 w-[31vw] h-[31vw] bg-blue-600/20 rounded-full blur-[5vw] mix-blend-screen animate-pulse-slow delay-1000" />
+        <div className={`absolute top-0 right-0 w-[42vw] h-[42vw] bg-purple-600/20 rounded-full ${TV_PERF_MODE ? '' : 'blur-[6vw] mix-blend-screen animate-pulse-slow'}`} />
+        <div className={`absolute bottom-0 left-0 w-[31vw] h-[31vw] bg-blue-600/20 rounded-full ${TV_PERF_MODE ? '' : 'blur-[5vw] mix-blend-screen animate-pulse-slow delay-1000'}`} />
       </div>
       
       {/* Background Image (Always present as base) */}
       <img 
         src={movie.image} 
         alt={movie.title} 
-        className="absolute inset-0 w-full h-full object-cover animate-pan-zoom opacity-80" 
-        onError={(e) => { e.target.src = "http://moviifox.x10.mx/aset/tv_banner2.webp"; }} // Hero Fallback
+        className={`absolute inset-0 w-full h-full object-cover ${TV_PERF_MODE ? '' : 'animate-pan-zoom'} opacity-80`} 
+        decoding="async"
+        onError={handleImageError} // Hero Fallback
       />
 
 
@@ -694,7 +770,7 @@ const Hero = ({ movie, isFocused, activeBtnIndex, onPlay }) => {
             muted
             loop
             playsInline
-            preload="auto"
+            preload={canShowVideo ? 'auto' : 'none'}
             className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out scale-[1.3] ${canShowVideo && videoReady ? 'opacity-100' : 'opacity-0'}`}
             onCanPlay={handleVideoLoaded}
             onError={handleVideoError}
@@ -707,36 +783,56 @@ const Hero = ({ movie, isFocused, activeBtnIndex, onPlay }) => {
       
       <div className={`absolute bottom-0 left-0 w-full px-[4.2vw] pb-[6.25vw] flex flex-col items-start gap-[1.5vw] transition-all duration-700 ${isFocused ? 'translate-y-0 opacity-100' : 'translate-y-[2.5vw] opacity-80'}`}>
         <h1 className="text-[5.6vw] font-semibold text-transparent bg-clip-text bg-gradient-to-b from-white to-white/60 drop-shadow-2xl leading-[0.9] tracking-normal">{movie.title}</h1>
-        <p className="text-zinc-300 text-[1.5vw] max-w-[55vw] line-clamp-2 leading-relaxed font-light mix-blend-plus-lighter">{movie.description}</p>
+        <p className={`text-zinc-300 text-[1.5vw] max-w-[55vw] line-clamp-2 leading-relaxed font-light ${TV_PERF_MODE ? '' : 'mix-blend-plus-lighter'}`}>{movie.description}</p>
         <div className="flex items-center gap-[1.8vw] mt-[1.8vw]">
-          <button className={`relative overflow-hidden group flex items-center gap-[1.2vw] px-[3.5vw] py-[1.6vw] rounded-[2.5rem] font-semibold transition-all duration-300 ease-out ${isFocused && activeBtnIndex === 0 ? 'bg-white text-black scale-110 shadow-[0_0_3vw_rgba(255,255,255,0.4)] ring-[0.25vw] ring-white/50' : 'bg-white/10 backdrop-blur-xl text-white hover:bg-white/20 ring-[0.15vw] ring-white/10'}`} onClick={onPlay}>
+          <button className={`relative overflow-hidden group flex items-center gap-[1.2vw] px-[3.5vw] py-[1.6vw] rounded-[2.5rem] font-semibold transition-all duration-300 ease-out ${isFocused && activeBtnIndex === 0 ? 'bg-white text-black scale-110 shadow-[0_0_3vw_rgba(255,255,255,0.4)] ring-[0.25vw] ring-white/50' : `${TV_PERF_MODE ? 'bg-white/10' : 'bg-white/10 backdrop-blur-xl'} text-white hover:bg-white/20 ring-[0.15vw] ring-white/10`}`} onClick={onPlay}>
             <span className="text-[1.4vw]">ดูรายละเอียด</span>
           </button>
         </div>
       </div>
     </div>
   );
-};
+});
 
 
-const Row = ({ title, items, rowIndex, activeRow, activeCol, onMovieClick, onViewMore, rowRefMap }) => {
+ const Row = React.memo(({ title, items, rowIndex, activeRow, activeCol, onMovieClick, onViewMore, rowRefMap }) => {
   const containerRef = useRef(null);
-  const limitedItems = items.slice(0, 5); // ลดจำนวนการ์ดจาก 12 เรื่องเหลือ 5 เรื่อง
+  const limitedItems = useMemo(() => items.slice(0, 5), [items]); // ลดจำนวนการ์ดจาก 12 เรื่องเหลือ 5 เรื่อง
+  const containerStyle = useMemo(() => ({ scrollbarWidth: 'none', msOverflowStyle: 'none', scrollBehavior: TV_PERF_MODE ? 'auto' : 'smooth' }), []);
+
+
+  const refSetters = useMemo(() => {
+    const list = [];
+    const total = limitedItems.length + 1; // + ViewMore
+    for (let i = 0; i < total; i++) {
+      list.push((el) => {
+        if (!rowRefMap.current[rowIndex]) rowRefMap.current[rowIndex] = [];
+        rowRefMap.current[rowIndex][i] = el;
+      });
+    }
+    return list;
+  }, [limitedItems.length, rowIndex, rowRefMap]);
   useEffect(() => {
     if (activeRow === rowIndex && containerRef.current) {
       const container = containerRef.current;
       const el = rowRefMap.current?.[rowIndex]?.[activeCol] || container.children[activeCol];
       if (el) {
         try {
-          el.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
+          const rect = el.getBoundingClientRect();
+          const cRect = container.getBoundingClientRect();
+          const isFullyVisible = rect.left >= cRect.left && rect.right <= cRect.right;
+          if (isFullyVisible) return;
+        } catch {}
+        try {
+          el.scrollIntoView({ behavior: TV_PERF_MODE ? 'auto' : 'smooth', inline: 'nearest', block: 'nearest' });
         } catch {
           try {
             const rect = el.getBoundingClientRect();
             const cRect = container.getBoundingClientRect();
             if (rect.left < cRect.left) {
-              container.scrollTo({ left: container.scrollLeft - (cRect.left - rect.left), behavior: 'smooth' });
+              container.scrollTo({ left: container.scrollLeft - (cRect.left - rect.left), behavior: TV_PERF_MODE ? 'auto' : 'smooth' });
             } else if (rect.right > cRect.right) {
-              container.scrollTo({ left: container.scrollLeft + (rect.right - cRect.right), behavior: 'smooth' });
+              container.scrollTo({ left: container.scrollLeft + (rect.right - cRect.right), behavior: TV_PERF_MODE ? 'auto' : 'smooth' });
             }
           } catch {}
         }
@@ -745,17 +841,17 @@ const Row = ({ title, items, rowIndex, activeRow, activeCol, onMovieClick, onVie
   }, [activeRow, activeCol, rowIndex]);
   const isActive = activeRow === rowIndex;
   return (
-    <div className={`py-[0.8vw] transition-all duration-700 ease-out relative ${isActive ? 'opacity-100 scale-100 blur-none z-50' : 'opacity-30 scale-95 blur-[0.1vw] z-0'}`}>
+    <div className={`py-[0.8vw] transition-all duration-700 ease-out relative ${isActive ? 'opacity-100 scale-100 blur-none z-50' : `opacity-30 scale-95 ${TV_PERF_MODE ? 'blur-none' : 'blur-[0.1vw]'} z-0`}`}>
       <h2 className={`text-[2.5vw] font-bold text-white -mb-[1vw] z-10 relative flex items-center gap-[1vw] tracking-tight transition-all duration-500 origin-left pl-[4.2vw] ${isActive ? 'translate-x-0 text-white' : '-translate-x-[1.5vw] text-zinc-500'}`}>{title} <ChevronRight className="w-[2vw] h-[2vw] text-white/50 animate-pulse" /></h2>
-      <div ref={containerRef} className="flex gap-[2vw] overflow-x-auto overflow-y-hidden pb-[8vw] pt-[5vw] px-[4.2vw] w-full" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', scrollBehavior: 'smooth' }}>
+      <div ref={containerRef} className="flex gap-[2vw] overflow-x-auto overflow-y-hidden pb-[8vw] pt-[5vw] px-[4.2vw] w-full" style={containerStyle}>
         {limitedItems.map((item, colIndex) => (
-          <MovieCard key={`${item.id}-${rowIndex}`} movie={item} isFocused={isActive && activeCol === colIndex} onClick={onMovieClick} innerRef={el => { if(!rowRefMap.current[rowIndex]) rowRefMap.current[rowIndex] = []; rowRefMap.current[rowIndex][colIndex] = el; }} />
+          <MovieCard key={`${item.id}-${rowIndex}`} movie={item} isFocused={isActive && activeCol === colIndex} onClick={onMovieClick} innerRef={refSetters[colIndex]} />
         ))}
-        <ViewMoreCard isFocused={isActive && activeCol === limitedItems.length} onClick={() => onViewMore(title)} innerRef={el => { if(!rowRefMap.current[rowIndex]) rowRefMap.current[rowIndex] = []; rowRefMap.current[rowIndex][limitedItems.length] = el; }} />
+        <ViewMoreCard isFocused={isActive && activeCol === limitedItems.length} onClick={() => onViewMore(title)} innerRef={refSetters[limitedItems.length]} />
       </div>
     </div>
   );
-};
+});
 
 
 const Modal = ({ movie, onClose }) => {
@@ -2188,6 +2284,7 @@ export default function App() {
           movie={heroMovie} 
           isFocused={activeRow === -1} 
           activeBtnIndex={activeCol} 
+          isModalOpen={!!selectedMovie}
           onPlay={() => { if (Date.now() < actionSuppressUntil.current) return; setSelectedMovie(heroMovie); }} 
         />
         <div className="relative mt-[-2vw]">
