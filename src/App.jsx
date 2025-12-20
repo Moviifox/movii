@@ -1443,16 +1443,16 @@ const SearchScreen = ({ searchQuery, setSearchQuery, searchResults, activeRow, a
 
   return (
     <div className={`w-full min-h-screen flex flex-col items-center pt-[14vw] text-white transition-all duration-500 ${isPageActive ? 'opacity-100 blur-0' : 'opacity-40 blur-[2px]'}`}>
-      <h2 className="text-[3vw] font-semibold mb-[2vw] flex items-center gap-4">
+      {/*<h2 className="text-[3vw] font-semibold mb-[2vw] flex items-center gap-4">
          <Search className="w-[3vw] h-[3vw] text-white" /> ค้นหาภาพยนตร์/ซีรีส์
-      </h2>
+      </h2>*/}
       <div className={`w-[50vw] h-[5vw] bg-zinc-900 rounded-full flex items-center px-[2vw] border transition-all duration-300 mb-[4vw] ${activeRow === -1 ? 'border-white scale-110 shadow-[0_0_2vw_rgba(255,255,255,0.2)] bg-zinc-800' : 'border-white/10 opacity-70'}`}>
         <input
           ref={inputRef}
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="พิมพ์ชื่อเรื่อง..."
+          placeholder="ค้นหาภาพยนตร์/ซีรีส์"
           className="w-full h-full bg-transparent text-[1.8vw] text-white outline-none placeholder-zinc-500"
         />
       </div>
