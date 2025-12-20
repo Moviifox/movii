@@ -1229,7 +1229,7 @@ const Modal = ({ movie, onClose }) => {
           <img src={movie.image} alt={movie.title} className="w-full h-full object-cover mask-image-gradient" />
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-zinc-900/20 to-zinc-900/90" />
           {movie.type && (
-            <span className="absolute top-[1vw] left-[1vw] bg-black/60 backdrop-blur-md text-white/90 text-[0.9vw] px-[0.7vw] py-[0.2vw] rounded-md border border-white/10 uppercase tracking-wider transform origin-top-left scale-[1.5]">
+            <span className="absolute top-[2vw] left-[2vw] bg-black/60 backdrop-blur-md text-white/90 text-[1.2vw] px-[0.7vw] py-[0.2vw] rounded-[0.8vw] border border-white/10 uppercase tracking-wider transform origin-top-left scale-[1.5]">
               {movie.type}
             </span>
           )}
@@ -1456,7 +1456,7 @@ const SearchScreen = ({ searchQuery, setSearchQuery, searchResults, activeRow, a
           className="w-full h-full bg-transparent text-[1.8vw] text-white outline-none placeholder-zinc-500"
         />
       </div>
-      <div className="w-full px-[4vw] flex-1 overflow-y-auto pb-[4vw] pt-[1.5vw]"> 
+      <div className="w-full px-[4vw] flex-1 overflow-y-auto pb-[4vw] pt-[0.5vw]"> 
          {searchResults.length > 0 ? (
             <div className="grid grid-cols-4 gap-[2vw]">
                {searchResults.map((movie, index) => {
@@ -2243,6 +2243,3 @@ export default function App() {
     </div>
   );
 }
-
-
-
