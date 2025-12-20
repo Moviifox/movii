@@ -405,7 +405,7 @@ const BrandRow = ({ activeRow, activeCol, rowIndex, rowRefMap }) => {
                src={brand.image} 
                alt={`Brand ${index + 1}`}
                className="w-full h-full object-cover object-center"
-               onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1594322436404-5a0526db4d13?w=800&auto=format&fit=crop"; }} // Brand Fallback
+               onError={(e) => { e.target.src = "http://moviifox.x10.mx/aset/tv_banner2.webp"; }} // Brand Fallback
              />
              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
           </div>
@@ -453,7 +453,7 @@ const MovieCard = ({ movie, isFocused, onClick, innerRef }) => {
             alt={movie.title} 
             className="w-full h-full object-cover transition-transform duration-700"
             loading="lazy"
-            onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?q=80&w=2070&auto=format&fit=crop"; }} // Card Fallback
+            onError={(e) => { e.target.src = "http://moviifox.x10.mx/aset/tv_banner2.webp"; }} // Card Fallback
         />
         <div className={`absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent transition-opacity duration-300 ${isFocused ? 'opacity-100' : 'opacity-0'}`} />
         
@@ -558,7 +558,7 @@ const GridMovieCard = ({ movie, isFocused, onClick, innerRef }) => {
             alt={movie.title} 
             className="w-full h-full object-cover transition-transform duration-500" 
             loading="lazy" 
-            onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?q=80&w=2070&auto=format&fit=crop"; }}
+            onError={(e) => { e.target.src = "http://moviifox.x10.mx/aset/tv_banner2.webp"; }} /* Card Fallback */
          />
          
          {/* Gradient Overlay */}
@@ -680,7 +680,7 @@ const Hero = ({ movie, isFocused, activeBtnIndex, onPlay }) => {
         src={movie.image} 
         alt={movie.title} 
         className="absolute inset-0 w-full h-full object-cover animate-pan-zoom opacity-80" 
-        onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?q=80&w=2069&auto=format&fit=crop"; }} // Hero Fallback
+        onError={(e) => { e.target.src = "http://moviifox.x10.mx/aset/tv_banner2.webp"; }} // Hero Fallback
       />
 
 
@@ -1385,7 +1385,7 @@ const GridPage = ({ movies, activeRow, activeCol, onMovieClick, rowRefMap, curre
       <div className={`transition-all duration-700 ease-out ${isPageActive ? 'opacity-100 scale-100 brightness-100' : 'opacity-40 scale-[0.98] brightness-50 blur-[2px]'}`}>
         <div className={`relative w-full h-[40vw] overflow-hidden`}>
            <div className="absolute inset-0">
-              <img src={coverImage || "https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?q=80&w=2069&auto=format&fit=crop"} alt="Cover" className="w-full h-full object-cover opacity-60" />
+              <img src={coverImage || "http://moviifox.x10.mx/aset/tv_banner2.webp"} alt="Cover" className="w-full h-full object-cover opacity-60" /> // Hero Fallback
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
               <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-transparent to-black/80" />
            </div>
@@ -2243,5 +2243,3 @@ export default function App() {
     </div>
   );
 }
-
-
