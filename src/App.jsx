@@ -760,7 +760,7 @@ const Row = ({ title, items, rowIndex, activeRow, activeCol, onMovieClick, onVie
 
 const Modal = ({ movie, onClose }) => {
   const [activeBtn, setActiveBtn] = useState(0);
-  const [fullscreenSrc, setFullscreenSrc] = useState(null); // kept for minimal diff but no longer used
+  const [fullscreenSrc, setFullscreenSrc] = useState(null); // external content shown inside fullscreen overlay
   const [showDescPopup, setShowDescPopup] = useState(false);
   const descRef = useRef(null);
   const [hasMoreDesc, setHasMoreDesc] = useState(false);
@@ -771,12 +771,13 @@ const Modal = ({ movie, onClose }) => {
   const [focusClose, setFocusClose] = useState(false);
   const titleRef = useRef(null);
   const epNavThrottleRef = useRef(0);
+  const iframeRef = useRef(null);
 
-  const openExternal = (url) => {
+  const openFullscreen = (url) => {
     if (!url) return;
     try {
-      const target = url.startsWith('//') ? `http:${url}` : url;
-      window.open(target, '_blank');
+      const target = url.startsWith('//') ? `https:${url}` : url;
+      setFullscreenSrc(target);
     } catch {}
   };
 
@@ -793,11 +794,20 @@ const Modal = ({ movie, onClose }) => {
 
   useEffect(() => {
     const handleKeyDown = (e) => {
+      const isTvBackKey = (e.key === 'Back' || e.key === 'GoBack' || e.key === 'BrowserBack');
+      const isTvBackCode = (e.keyCode === 10009 || e.keyCode === 461);
+
+      if (fullscreenSrc) {
+        if (isTvBackKey || isTvBackCode || e.key === 'Escape' || e.key === 'Backspace') {
+          try { e.preventDefault(); } catch {}
+          setFullscreenSrc(null);
+        }
+        return;
+      }
+
       // Normal modal key handling (no iframe mode)
       if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) e.preventDefault();
       // TV remote Back normalization inside modal
-      const isTvBackKey = (e.key === 'Back' || e.key === 'GoBack' || e.key === 'BrowserBack');
-      const isTvBackCode = (e.keyCode === 10009 || e.keyCode === 461);
       if (isTvBackKey || isTvBackCode) {
         try { e.preventDefault(); } catch {}
         if (showDescPopup) {
@@ -951,19 +961,19 @@ const Modal = ({ movie, onClose }) => {
         if (focusClose) { onClose(); return; }
         if (isSeries && epFocus >= 0 && Array.isArray(movie?.episodes)) {
           const ep = movie.episodes[epFocus];
-          if (ep?.link) { try { window.open(ep.link, '_blank'); } catch {} }
+          if (ep?.link) { openFullscreen(ep.link); }
         } else if (focusMore) {
           if (hasMoreDesc) setShowDescPopup(true);
         } else if (!isSeries && activeBtn === 0 && movie?.movielink) {
-          openExternal(movie.movielink);
+          openFullscreen(movie.movielink);
         } else if (activeBtn === 1 && movie?.trailer) {
-          openExternal(movie.trailer);
+          openFullscreen(movie.trailer);
         }
       }
     };
     window.addEventListener('keydown', handleKeyDown, { passive: false });
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onClose, activeBtn, showDescPopup, movie, isSeries, hasMoreDesc, focusMore, epFocus, focusClose]);
+  }, [onClose, activeBtn, showDescPopup, movie, isSeries, hasMoreDesc, focusMore, epFocus, focusClose, fullscreenSrc]);
 
   // When focusing the X button, ensure the top content is visible
   useEffect(() => {
@@ -1015,12 +1025,54 @@ const Modal = ({ movie, onClose }) => {
     }
   }, [epFocus]);
 
+  useEffect(() => {
+    if (!fullscreenSrc) return;
+    let attempts = 0;
+    const maxAttempts = 10;
+
+    const tryFocus = () => {
+      const iframeEl = iframeRef.current;
+      if (!iframeEl) return;
+      try {
+        iframeEl.focus({ preventScroll: true });
+      } catch {}
+      try {
+        iframeEl.contentWindow?.focus();
+      } catch {}
+      attempts += 1;
+      if (attempts < maxAttempts && fullscreenSrc) {
+        setTimeout(tryFocus, 120);
+      }
+    };
+
+    const initialTimer = setTimeout(tryFocus, 50);
+    const sustainTimer = setInterval(() => {
+      if (fullscreenSrc) {
+        tryFocus();
+      }
+    }, 1500);
+
+    const handleFocusRestore = () => {
+      if (fullscreenSrc) {
+        tryFocus();
+      }
+    };
+
+    window.addEventListener('keydown', handleFocusRestore, true);
+
+    return () => {
+      clearTimeout(initialTimer);
+      clearInterval(sustainTimer);
+      window.removeEventListener('keydown', handleFocusRestore, true);
+    };
+  }, [fullscreenSrc]);
+
   // Push a history state when opening overlays so hardware back triggers popstate
   useEffect(() => {
-    if (showDescPopup) {
+    if (showDescPopup || fullscreenSrc) {
       try { window.history.pushState({ overlay: true }, ''); } catch {}
     }
-  }, [showDescPopup]);
+  }, [showDescPopup, fullscreenSrc]);
 
   // Handle popstate (browser/remote back)
   useEffect(() => {
@@ -1071,7 +1123,20 @@ const Modal = ({ movie, onClose }) => {
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-[3vw]">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-[50px] transition-all duration-500" onClick={() => (fullscreenSrc || showDescPopup) ? null : onClose()} />
 
-      {/* No internal iframe: external window/tab for video content */}
+      {/* Fullscreen player overlay */}
+      {fullscreenSrc && (
+        <div className="fixed inset-0 z-[140] bg-black">
+          <iframe
+            src={fullscreenSrc}
+            title="Video player"
+            className="w-full h-full"
+            ref={iframeRef}
+            tabIndex={0}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen; keyboard-map"
+            allowFullScreen
+          />
+        </div>
+      )}
 
       {/* Fullscreen description popup */}
       {showDescPopup && (
@@ -1146,13 +1211,13 @@ const Modal = ({ movie, onClose }) => {
             <div className="flex gap-[1.5vw] mt-auto">
               <button
                 className={`flex-1 py-[1.3vw] rounded-[2vw] font-semibold text-[1.4vw] transition-all duration-300 flex items-center justify-center gap-[1vw] ${(activeBtn === 0 && epFocus === -1 && !focusMore && !focusClose) ? 'bg-white text-black scale-105 shadow-[0_0_2vw_rgba(255,255,255,0.3)]' : 'bg-white/5 text-white hover:bg-white/10 border border-white/10'}`}
-                onClick={() => movie?.movielink && openExternal(movie.movielink)}
+                onClick={() => movie?.movielink && openFullscreen(movie.movielink)}
               >
                 <Play className="w-[1.6vw] h-[1.6vw] fill-current" /> เล่นเลย
               </button>
               <button
                 className={`flex-1 py-[1.3vw] rounded-[2vw] font-semibold text-[1.4vw] transition-all duration-0 ${(activeBtn === 1 && epFocus === -1 && !focusMore && !focusClose) ? 'bg-white/10 text-white border-2 border-white/70 scale-105 shadow-[0_0_2vw_rgba(255,255,255,0.12)]' : 'bg-white/5 text-white hover:bg-white/10'}`}
-                onClick={() => movie?.trailer && openExternal(movie.trailer)}
+                onClick={() => movie?.trailer && openFullscreen(movie.trailer)}
               >
                 ดูตัวอย่าง
               </button>
@@ -1163,7 +1228,7 @@ const Modal = ({ movie, onClose }) => {
                 <div className="mb-[1vw]">
                   <button
                     className={`w-full py-[1.1vw] rounded-[2vw] font-semibold text-[1.3vw] transition-all duration-0 ${(activeBtn === 1 && epFocus === -1 && !focusMore && !focusClose) ? 'bg-white/10 text-white border-2 border-white/70 shadow-[0_0_2vw_rgba(255,255,255,0.12)]' : 'bg-white/5 text-white hover:bg-white/10'}`}
-                    onClick={() => openExternal(movie.trailer)}
+                    onClick={() => openFullscreen(movie.trailer)}
                   >
                     ดูตัวอย่าง
                   </button>
@@ -1176,7 +1241,7 @@ const Modal = ({ movie, onClose }) => {
                       key={i}
                       ref={el => epRefs.current[i] = el}
                       className={`w-full py-[0.9vw] rounded-[1.2vw] border text-white text-[1.1vw] truncate transition-all ${epFocus === i ? 'bg-white/20 border-white/60 ring-2 ring-white/50 scale-[1.03]' : 'bg-white/5 hover:bg-white/10 border-white/10'}`}
-                      onClick={() => { if (ep?.link) { try { openExternal(ep.link); } catch {} } }}
+                      onClick={() => { if (ep?.link) { openFullscreen(ep.link); } }}
                       title={ep?.name || `ตอนที่ ${i + 1}`}
                     >
                       {ep?.name || `ตอนที่ ${i + 1}`}
@@ -1577,16 +1642,13 @@ export default function App() {
     heroMovie
   });
 
-
-  useEffect(() => {
-    stateRef.current = {
-      activeRow, activeCol, lastActiveRow, lastActiveCol, selectedMovie, activeTab,
-      categories, isGridMode, isSearchMode, gridMovies, gridColumns, currentGridRows,
-      NAV_ITEMS, currentFilter, gridPage, paginationItems, searchQuery, currentMoviesOnPage,
-      totalPages,
-      heroMovie
-    };
-  }, [activeRow, activeCol, lastActiveRow, lastActiveCol, selectedMovie, activeTab, categories, isGridMode, isSearchMode, gridMovies, gridColumns, currentGridRows, currentFilter, gridPage, paginationItems, searchQuery, currentMoviesOnPage, totalPages, heroMovie]);
+  stateRef.current = {
+    activeRow, activeCol, lastActiveRow, lastActiveCol, selectedMovie, activeTab,
+    categories, isGridMode, isSearchMode, gridMovies, gridColumns, currentGridRows,
+    NAV_ITEMS, currentFilter, gridPage, paginationItems, searchQuery, currentMoviesOnPage,
+    totalPages,
+    heroMovie
+  };
 
 
   const handleViewMore = (categoryTitle) => {
@@ -1681,7 +1743,10 @@ export default function App() {
 
   useEffect(() => {
     const handleKeyDown = (e) => {
-      
+      const { selectedMovie } = stateRef.current;
+      if (selectedMovie) {
+        return;
+      }
 
       if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' ', 'Enter'].includes(e.key)) { e.preventDefault(); }
       // TV remote Back normalization (Tizen/WebOS/Android TV)
@@ -1710,13 +1775,13 @@ export default function App() {
 
 
       const {
-        activeRow: currentActiveRow, activeCol: currentActiveCol, lastActiveRow, lastActiveCol, selectedMovie, activeTab, 
+        activeRow: currentActiveRow, activeCol: currentActiveCol, lastActiveRow, lastActiveCol, selectedMovie: currentSelectedMovie, activeTab, 
         categories, isGridMode: currentIsGridMode, isSearchMode, gridMovies, gridColumns, currentGridRows, 
         NAV_ITEMS, currentFilter, gridPage, paginationItems, currentMoviesOnPage
       } = stateRef.current;
 
 
-      if (selectedMovie) return;
+      if (currentSelectedMovie) return;
 
 
       switch (e.key) {
@@ -1920,15 +1985,6 @@ export default function App() {
   }, []);
 
   // Disable mouse/touch interactions globally (remote-only)
-  useEffect(() => {
-    const block = (e) => { e.preventDefault(); e.stopPropagation(); return false; };
-    const events = ['click', 'mousedown', 'mouseup', 'pointerdown', 'pointerup', 'touchstart', 'touchend'];
-    events.forEach(ev => window.addEventListener(ev, block, { capture: true }));
-    try { document.body.style.userSelect = 'none'; } catch {}
-    return () => { events.forEach(ev => window.removeEventListener(ev, block, { capture: true })); };
-  }, []);
-
-
   useEffect(() => {
     if (activeRow === -1) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
