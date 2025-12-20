@@ -1456,7 +1456,7 @@ const SearchScreen = ({ searchQuery, setSearchQuery, searchResults, activeRow, a
           className="w-full h-full bg-transparent text-[1.8vw] text-white outline-none placeholder-zinc-500"
         />
       </div>
-      <div className="w-full px-[4vw] flex-1 overflow-y-auto pb-[4vw] pt-[0.5vw]"> 
+      <div className="w-full px-[4vw] flex-1 overflow-y-auto pb-[4vw] pt-[1vw]"> 
          {searchResults.length > 0 ? (
             <div className="grid grid-cols-4 gap-[2vw]">
                {searchResults.map((movie, index) => {
@@ -2243,4 +2243,5 @@ export default function App() {
     </div>
   );
 }
+
 
