@@ -1728,8 +1728,6 @@ export default function App() {
         setTimeout(() => window.scrollTo(0, 0), 50);
     }
 
-    rowRefMap.current = {};
-
     if (activeTab === 'search' && previousTab !== 'search') {
         setActiveRow(-1);
     }
@@ -1894,20 +1892,12 @@ export default function App() {
 
 
   const handleNavbarSelect = (tabId) => {
-      rowRefMap.current = {};
-      setActiveTab(tabId);
-      // suppress accidental follow-up actions briefly after tab switch
-      actionSuppressUntil.current = Date.now() + 350;
-      let startRow = -1;
-      
-      if (tabId === 'movies') {
-        setCurrentFilter('ทั้งหมด');
-        setGridPage(1);
-      }
-      
-      setActiveRow(startRow);
-      setLastActiveRow(-1);
-      setActiveCol(0);
+    if (Date.now() < actionSuppressUntil.current) return;
+    setActiveTab(tabId);
+    setActiveRow(-1); // Reset to Hero section
+    setActiveCol(0);
+    rowRefMap.current = {}; // Reset all row/col refs to force re-scroll
+    setGridPage(1);
   };
 
 
