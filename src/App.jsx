@@ -665,7 +665,7 @@ const Hero = React.memo(({ movie, isFocused, activeBtnIndex, onPlay, isModalOpen
       if (videoRef.current) {
          videoRef.current.load();
       }
-    }, 7000);
+    }, 3000);
 
 
     return () => clearTimeout(timer);
@@ -2330,3 +2330,4 @@ export default function App() {
     </div>
   );
 }
+
