@@ -1284,7 +1284,7 @@ const Modal = ({ movie, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-[3vw]">
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-[50px] transition-all duration-500" onClick={() => (fullscreenSrc || showDescPopup) ? null : onClose()} />
+      <div className={`absolute inset-0 bg-black/40 transition-all duration-500 ${TV_PERF_MODE ? '' : 'backdrop-blur-[50px]'}`} onClick={() => (fullscreenSrc || showDescPopup) ? null : onClose()} />
 
       {/* Fullscreen player overlay */}
       {fullscreenSrc && (
@@ -1315,7 +1315,7 @@ const Modal = ({ movie, onClose }) => {
       )}
 
       {/* Main modal layout */}
-      <div className="relative w-full h-full bg-zinc-900/60 rounded-[3vw] overflow-hidden shadow-[0_0_5vw_rgba(0,0,0,0.5)] border border-white/10 animate-modal-pop backdrop-blur-3xl flex">
+      <div className={`relative w-full h-full bg-zinc-900/60 rounded-[3vw] overflow-hidden shadow-[0_0_5vw_rgba(0,0,0,0.5)] border border-white/10 animate-modal-pop flex ${TV_PERF_MODE ? '' : 'backdrop-blur-3xl'}`}>
         {/* Close button pinned to modal container (does not scroll with right panel) */}
         <button onClick={onClose} className={`absolute top-[3vw] right-[3vw] z-999 w-[4vw] h-[4vw] rounded-full flex items-center justify-center border transition-all ${focusClose ? 'bg-white text-black ring-2 ring-white/50 scale-110 border-white' : 'bg-[#181616ff] backdrop-blur-2xl duration-500 hover:bg-white/20 border-white/10'}`}>
           <X className={`w-[1.8vw] h-[1.8vw] ${focusClose ? 'text-black' : 'text-white'}`} />
