@@ -1295,6 +1295,8 @@ const Modal = ({ movie, onClose }) => {
             className="w-full h-full"
             ref={iframeRef}
             tabIndex={0}
+            sandbox="allow-forms allow-scripts allow-same-origin allow-pointer-lock"
+            loading="lazy"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen; keyboard-map"
             allowFullScreen
           />
@@ -2330,4 +2332,3 @@ export default function App() {
     </div>
   );
 }
-
