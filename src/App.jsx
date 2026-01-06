@@ -1349,7 +1349,7 @@ const Modal = ({ movie, onClose }) => {
             </div>
           )}
           {categoriesCapsules.length > 0 && (
-            <div className="flex flex-wrap gap-[0.6vw] mb-[2.6vw]">
+            <div className="flex flex-wrap gap-[0.6vw] mb-[2.2vw]">
               {categoriesCapsules.map((c, idx) => (
                 <span key={idx} className="text-[1.4vw] px-[1.2vw] py-[0.35vw] rounded-full bg-white/10 border border-white/10 text-white/90">{c}</span>
               ))}
@@ -2332,4 +2332,5 @@ export default function App() {
     </div>
   );
 }
+
 
