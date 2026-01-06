@@ -1358,7 +1358,7 @@ const Modal = ({ movie, onClose }) => {
 
           {/* Description truncated + more button */}
           <div className="text-zinc-300 text-[1.6vw] font-regular leading-snug mb-[4vw] font-light mix-blend-plus-lighter">
-            <div ref={descRef} className="line-clamp-5">{movie.description || FEATURED_MOVIE.description}</div>
+            <div ref={descRef} className="line-clamp-4">{movie.description || FEATURED_MOVIE.description}</div>
             {movie.description && hasMoreDesc && (
               <button
                 type="button"
@@ -2332,3 +2332,4 @@ export default function App() {
     </div>
   );
 }
+
