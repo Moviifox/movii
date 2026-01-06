@@ -540,7 +540,7 @@ const MovieCard = React.memo(({ movie, isFocused, onClick, innerRef }) => {
              <p 
                 ref={subtitleRef}
                 className={`text-zinc-400 font-normal tracking-wider uppercase
-                    text-[1.2vw] /* Increased size */
+                    text-[1.4vw] /* Increased size */
                     ${isFocused && shouldScrollSubtitle ? 'animate-marquee inline-block' : 'truncate block'}
                 `}
             >
@@ -628,12 +628,12 @@ const GridMovieCard = React.memo(({ movie, isFocused, onClick, innerRef }) => {
         transition-all duration-300
         ${isFocused ? 'translate-y-0' : 'translate-y-[0.5vw]'}
       `}>
-         <h3 className={`text-white font-semibold text-[1.4vw] truncate drop-shadow-lg leading-tight ${isFocused ? 'text-white' : 'text-zinc-200'}`}>{movie.title}</h3>
+         <h3 className={`text-white font-semibold text-[1.6vw] truncate drop-shadow-lg leading-tight ${isFocused ? 'text-white' : 'text-zinc-200'}`}>{movie.title}</h3>
          
          <div className="flex items-center gap-[0.6vw] mt-[0.4vw]">
-           <span className="text-zinc-300 text-[0.9vw] font-light truncate flex-1">{movie.title_alt}</span>
+           <span className="text-zinc-300 text-[1.4vw] font-regular truncate flex-1">{movie.title_alt}</span>
            {movie.title_alt && displayYear && <span className="w-[0.25vw] h-[0.25vw] bg-zinc-500 rounded-full flex-shrink-0"></span>}
-           <span className="text-zinc-300 text-[0.9vw] font-light flex-shrink-0">{displayYear}</span>
+           <span className="text-zinc-300 text-[1.4vw] font-regular flex-shrink-0">{displayYear}</span>
          </div>
       </div>
     </div>
@@ -1308,8 +1308,8 @@ const Modal = ({ movie, onClose }) => {
         <div className="fixed inset-0 z-[150] bg-black/95 text-white overflow-y-auto">
           <div className="max-w-[60vw] mx-auto py-[5vw] px-[2vw]">
             <h3 className="text-[2.6vw] font-semibold mb-[1vw] leading-tight">{movie.title}</h3>
-            {movie.title_alt && <div className="text-[1.4vw] text-zinc-400 mb-[2vw] leading-snug">{movie.title_alt}</div>}
-            <div className="text-[1.3vw] leading-relaxed whitespace-pre-wrap">{movie.description}</div>
+            {movie.title_alt && <div className="text-[2.2vw] font-regular text-zinc-400 mb-[2vw] leading-snug">{movie.title_alt}</div>}
+            <div className="text-[1.8vw] font-light leading-relaxed whitespace-pre-wrap">{movie.description}</div>
           </div>
         </div>
       )}
@@ -1336,10 +1336,10 @@ const Modal = ({ movie, onClose }) => {
           {/* Title and sub-lines */}
           <h2 ref={titleRef} className="text-[3.2vw] font-semibold text-white mb-[0.6vw] leading-[1.05] tracking-tight">{movie.title}</h2>
           {movie.title_alt && (
-            <div className="text-[1.4vw] text-zinc-400 mb-[0.6vw] leading-snug">{movie.title_alt}</div>
+            <div className="text-[2.2vw] font-semibold text-zinc-400 mb-[0.6vw] leading-snug">{movie.title_alt}</div>
           )}
           {infoPieces.length > 0 && (
-            <div className="flex items-center flex-wrap gap-x-[0.8vw] text-[1.2vw] text-zinc-300 mb-[1vw] leading-none">
+            <div className="flex items-center flex-wrap gap-x-[1vw] text-[1.8vw] font-regular text-zinc-300 mb-[1.4vw] leading-none">
               {infoPieces.map((p, i) => (
                 <React.Fragment key={i}>
                   {i > 0 && <span className="w-[0.35vw] h-[0.35vw] rounded-full bg-zinc-500 self-center" />}
@@ -1349,21 +1349,21 @@ const Modal = ({ movie, onClose }) => {
             </div>
           )}
           {categoriesCapsules.length > 0 && (
-            <div className="flex flex-wrap gap-[0.6vw] mb-[1.2vw]">
+            <div className="flex flex-wrap gap-[0.6vw] mb-[2.6vw]">
               {categoriesCapsules.map((c, idx) => (
-                <span key={idx} className="text-[1vw] px-[0.9vw] py-[0.35vw] rounded-full bg-white/10 border border-white/10 text-white/90">{c}</span>
+                <span key={idx} className="text-[1.4vw] px-[1.2vw] py-[0.35vw] rounded-full bg-white/10 border border-white/10 text-white/90">{c}</span>
               ))}
             </div>
           )}
 
           {/* Description truncated + more button */}
-          <div className="text-zinc-300 text-[1.3vw] leading-snug mb-[2vw] font-light mix-blend-plus-lighter">
-            <div ref={descRef} className="line-clamp-6">{movie.description || FEATURED_MOVIE.description}</div>
+          <div className="text-zinc-300 text-[1.6vw] font-regular leading-snug mb-[4vw] font-light mix-blend-plus-lighter">
+            <div ref={descRef} className="line-clamp-5">{movie.description || FEATURED_MOVIE.description}</div>
             {movie.description && hasMoreDesc && (
               <button
                 type="button"
                 tabIndex={0}
-                className={`mt-[0.6vw] underline underline-offset-4 text-[1.1vw] transition-all ${focusMore ? 'text-white scale-105 ring-2 ring-white/40 rounded-md px-[0.4vw]' : 'text-white/90 hover:text-white'}`}
+                className={`mt-[0.6vw] underline underline-offset-4 text-[1.4vw] font-semibold transition-all ${focusMore ? 'text-white scale-105 ring-2 ring-white/40 rounded-md px-[0.4vw]' : 'text-white/90 hover:text-white'}`}
                 onClick={() => setShowDescPopup(true)}
               >
                 เพิ่มเติม
@@ -1390,9 +1390,9 @@ const Modal = ({ movie, onClose }) => {
           ) : (
             <div className="mt-auto">
               {movie?.trailer && (
-                <div className="mb-[1vw]">
+                <div className="mb-[1.2vw]">
                   <button
-                    className={`w-full py-[1.1vw] rounded-[2vw] font-semibold text-[1.3vw] transition-all duration-0 ${(activeBtn === 1 && epFocus === -1 && !focusMore && !focusClose) ? 'bg-white/10 text-white border-2 border-white/70 shadow-[0_0_2vw_rgba(255,255,255,0.12)]' : 'bg-white/5 text-white hover:bg-white/10'}`}
+                    className={`w-full py-[1.1vw] rounded-[2.2vw] font-semibold text-[1.6vw] transition-all duration-0 ${(activeBtn === 1 && epFocus === -1 && !focusMore && !focusClose) ? 'bg-white/10 text-white border-2 border-white/70 shadow-[0_0_2vw_rgba(255,255,255,0.12)]' : 'bg-white/5 text-white hover:bg-white/10'}`}
                     onClick={() => openFullscreen(movie.trailer)}
                   >
                     ดูตัวอย่าง
@@ -1400,12 +1400,12 @@ const Modal = ({ movie, onClose }) => {
                 </div>
               )}
               {Array.isArray(movie.episodes) && movie.episodes.length > 0 && (
-                <div className="grid grid-cols-3 gap-[0.8vw]">
+                <div className="grid grid-cols-3 gap-[1vw]">
                   {movie.episodes.map((ep, i) => (
                     <button
                       key={i}
                       ref={el => epRefs.current[i] = el}
-                      className={`w-full py-[0.9vw] rounded-[1.2vw] border text-white text-[1.1vw] truncate transition-all ${epFocus === i ? 'bg-white/20 border-white/60 ring-2 ring-white/50 scale-[1.03]' : 'bg-white/5 hover:bg-white/10 border-white/10'}`}
+                      className={`w-full py-[0.9vw] px-[0.9vw] rounded-[1.8vw] border text-white text-[1.6vw] truncate transition-all ${epFocus === i ? 'bg-white/20 border-white/60 ring-2 ring-white/50 scale-[1.03]' : 'bg-white/5 hover:bg-white/10 border-white/10'}`}
                       onClick={() => { if (ep?.link) { openFullscreen(ep.link); } }}
                       title={ep?.name || `ตอนที่ ${i + 1}`}
                     >
