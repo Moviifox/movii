@@ -1621,6 +1621,21 @@ export default function App() {
   const pendingRestore = useRef(null);
   const actionSuppressUntil = useRef(0);
   const previousActiveTab = useRef(activeTab);
+  const lastScrollTopRef = useRef(0);
+  const scrollTimeoutsRef = useRef([]);
+  const clearScrollTimeouts = useCallback(() => {
+    if (!scrollTimeoutsRef.current.length) return;
+    scrollTimeoutsRef.current.forEach(timeoutId => clearTimeout(timeoutId));
+    scrollTimeoutsRef.current = [];
+  }, []);
+  const registerScrollTimeout = useCallback((fn, delay) => {
+    const id = setTimeout(() => {
+      fn();
+      scrollTimeoutsRef.current = scrollTimeoutsRef.current.filter(tid => tid !== id);
+    }, delay);
+    scrollTimeoutsRef.current.push(id);
+    return id;
+  }, []);
 
 
   useEffect(() => {
@@ -2166,31 +2181,59 @@ export default function App() {
 
   // Disable mouse/touch interactions globally (remote-only)
   useEffect(() => {
+    clearScrollTimeouts();
+
+    if (activeRow !== -2) {
+      try { lastScrollTopRef.current = window.scrollY || 0; } catch {}
+    }
+
+    if (activeRow === -2) {
+      const restore = () => {
+        try { window.scrollTo({ top: lastScrollTopRef.current, behavior: 'auto' }); } catch {}
+      };
+      registerScrollTimeout(restore, 30);
+      registerScrollTimeout(restore, 160);
+      return clearScrollTimeouts;
+    }
+
     if (activeRow === -1) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    } else if (activeRow >= 0) { 
-      // Grid focus scrolling logic
+      try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch {}
+      return;
+    }
+
+    if (activeRow >= 0) {
       let attempts = 0;
       const maxAttempts = 30;
+
       const tryScroll = () => {
-        const targetEl = rowRefMap.current[activeRow]?.[activeCol] || rowRefMap.current[activeRow]?.[0];
+        const { activeRow: currentActiveRow, activeCol: currentActiveCol } = stateRef.current || {};
+        if (currentActiveRow === -2 || currentActiveRow !== activeRow) {
+          return;
+        }
+
+        const targetEl = rowRefMap.current[currentActiveRow]?.[currentActiveCol] || rowRefMap.current[currentActiveRow]?.[0];
         if (targetEl) {
           try {
-            targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            targetEl.scrollIntoView({ behavior: TV_PERF_MODE ? 'auto' : 'smooth', block: 'center', inline: 'nearest' });
           } catch {
-            const elementRect = targetEl.getBoundingClientRect();
-            const absoluteElementTop = elementRect.top + window.scrollY;
-            const offset = window.innerHeight / 2 - (elementRect.height / 2);
-            window.scrollTo({ top: absoluteElementTop - offset, behavior: 'smooth' });
+            try {
+              const elementRect = targetEl.getBoundingClientRect();
+              const absoluteElementTop = elementRect.top + window.scrollY;
+              const offset = window.innerHeight / 2 - (elementRect.height / 2);
+              window.scrollTo({ top: absoluteElementTop - offset, behavior: 'smooth' });
+            } catch {}
           }
         } else if (attempts < maxAttempts) {
           attempts += 1;
-          setTimeout(tryScroll, 50);
+          registerScrollTimeout(tryScroll, 50);
         }
       };
-      setTimeout(tryScroll, 100);
+
+      registerScrollTimeout(tryScroll, 100);
     }
-  }, [activeRow, activeCol, isGridMode, currentMoviesOnPage, gridPage]);
+
+    return clearScrollTimeouts;
+  }, [activeRow, activeCol, isGridMode, currentMoviesOnPage, gridPage, clearScrollTimeouts, registerScrollTimeout]);
 
 
   const renderContent = () => {
