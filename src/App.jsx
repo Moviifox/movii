@@ -417,10 +417,11 @@ const BrandRow = ({ activeRow, activeCol, rowIndex, rowRefMap }) => {
   
   const isActive = activeRow === rowIndex;
   const containerRef = useRef(null);
+  const inactiveBlurClass = 'blur-none';
 
 
   return (
-    <div className={`py-[3.5vw] transition-all duration-700 ease-out relative ${isActive ? 'opacity-100 scale-100 blur-none z-50' : `opacity-30 scale-95 ${TV_PERF_MODE ? 'blur-none' : 'blur-[0.1vw]'} z-0`}`}>
+    <div className={`py-[3.5vw] transition-all duration-700 ease-out relative ${isActive ? 'opacity-100 scale-100 blur-none z-50' : `opacity-30 scale-95 ${inactiveBlurClass} z-0`}`}>
       <div 
         ref={containerRef}
         className="flex gap-[2vw] overflow-visible px-[4.2vw] w-full"
@@ -641,7 +642,7 @@ const GridMovieCard = React.memo(({ movie, isFocused, onClick, innerRef }) => {
 });
 
 
-const Hero = React.memo(({ movie, isFocused, activeBtnIndex, onPlay, isModalOpen }) => {
+const Hero = React.memo(({ movie, isFocused, activeBtnIndex, onPlay, isModalOpen, isNavFocused = false }) => {
   // Hooks MUST be at the top level
   const [videoReady, setVideoReady] = useState(false);
   const [canShowVideo, setCanShowVideo] = useState(false);
@@ -743,8 +744,11 @@ const Hero = React.memo(({ movie, isFocused, activeBtnIndex, onPlay, isModalOpen
   }
 
 
+  const inactiveBlurClass = 'blur-none';
+
+
   return (
-    <div className={`relative w-full h-[95vh] rounded-b-[4vw] overflow-hidden transition-all duration-1000 ease-out ${isFocused ? 'scale-100 brightness-100 blur-none' : `scale-[0.98] brightness-50 opacity-60 ${TV_PERF_MODE ? 'blur-none' : 'blur-[0.2vw]'}`}`}>
+    <div className={`relative w-full h-[95vh] rounded-b-[4vw] overflow-hidden transition-all duration-1000 ease-out ${isFocused ? 'scale-100 brightness-100 blur-none' : `scale-[0.98] brightness-50 opacity-60 ${inactiveBlurClass}`}`}>
       <div className="absolute inset-0 bg-black">
       </div>
       
@@ -799,6 +803,9 @@ const Hero = React.memo(({ movie, isFocused, activeBtnIndex, onPlay, isModalOpen
   const containerStyle = useMemo(() => ({ scrollbarWidth: 'none', msOverflowStyle: 'none', scrollBehavior: TV_PERF_MODE ? 'auto' : 'smooth' }), []);
 
 
+  const inactiveBlurClass = 'blur-none';
+
+
   const refSetters = useMemo(() => {
     const list = [];
     const total = limitedItems.length + 1; // + ViewMore
@@ -839,7 +846,7 @@ const Hero = React.memo(({ movie, isFocused, activeBtnIndex, onPlay, isModalOpen
   }, [activeRow, activeCol, rowIndex]);
   const isActive = activeRow === rowIndex;
   return (
-    <div className={`py-[0.8vw] transition-all duration-700 ease-out relative ${isActive ? 'opacity-100 scale-100 blur-none z-50' : `opacity-30 scale-95 ${TV_PERF_MODE ? 'blur-none' : 'blur-[0.1vw]'} z-0`}`}>
+    <div className={`py-[0.8vw] transition-all duration-700 ease-out relative ${isActive ? 'opacity-100 scale-100 blur-none z-50' : `opacity-30 scale-95 ${inactiveBlurClass} z-0`}`}>
       <h2 className={`text-[2.5vw] font-bold text-white -mb-[1vw] z-10 relative flex items-center gap-[1vw] tracking-tight transition-all duration-500 origin-left pl-[4.2vw] ${isActive ? 'translate-x-0 text-white' : '-translate-x-[1.5vw] text-zinc-500'}`}>{title} <ChevronRight className="w-[2vw] h-[2vw] text-white/50 animate-pulse" /></h2>
       <div ref={containerRef} className="flex gap-[2vw] overflow-x-auto overflow-y-hidden pb-[8vw] pt-[5vw] px-[4.2vw] w-full" style={containerStyle}>
         {limitedItems.map((item, colIndex) => (
@@ -1478,7 +1485,7 @@ const GridPage = ({ movies, activeRow, activeCol, onMovieClick, rowRefMap, curre
 
   return (
     <div className="w-full min-h-screen bg-black">
-      <div className={`transition-all duration-700 ease-out ${isPageActive ? 'opacity-100 scale-100 brightness-100' : 'opacity-40 scale-[0.98] brightness-50 blur-[2px]'}`}>
+      <div className={`transition-all duration-700 ease-out ${isPageActive ? 'opacity-100 scale-100 brightness-100' : 'opacity-40 scale-[0.98] brightness-50'}`}>
         <div className={`relative w-full h-[40vw] overflow-hidden`}>
            <div className="absolute inset-0">
               <img src={coverImage || "http://moviifox.x10.mx/aset/tv_banner2.webp"} alt="Cover" className="w-full h-full object-cover opacity-60" /> // Hero Fallback
@@ -1538,7 +1545,7 @@ const SearchScreen = ({ searchQuery, setSearchQuery, searchResults, activeRow, a
 
 
   return (
-    <div className={`w-full min-h-screen flex flex-col items-center pt-[14vw] text-white transition-all duration-500 ${isPageActive ? 'opacity-100 blur-0' : 'opacity-40 blur-[2px]'}`}>
+    <div className={`w-full min-h-screen flex flex-col items-center pt-[14vw] text-white transition-all duration-500 ${isPageActive ? 'opacity-100' : 'opacity-40'}`}>
       {/*<h2 className="text-[3vw] font-semibold mb-[2vw] flex items-center gap-4">
          <Search className="w-[3vw] h-[3vw] text-white" /> ค้นหาภาพยนตร์/ซีรีส์
       </h2>*/}
@@ -2275,6 +2282,7 @@ export default function App() {
           isFocused={activeRow === -1} 
           activeBtnIndex={activeCol} 
           isModalOpen={!!selectedMovie}
+          isNavFocused={activeRow === -2}
           onPlay={() => { if (Date.now() < actionSuppressUntil.current) return; setSelectedMovie(heroMovie); }} 
         />
         <div className="relative mt-[-2vw]">
@@ -2293,7 +2301,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-black text-white font-sans overflow-x-hidden selection:bg-white selection:text-black pointer-events-none">
       <Navbar isFocused={activeRow === -2} activeNavIndex={activeCol} activeTab={activeTab} onSelect={handleNavbarSelect} />
-      <div className={`transition-all duration-300 ${activeRow === -2 ? 'blur-sm' : 'blur-none'}`}>
+      <div className={`transition-all duration-300 filter ${activeRow === -2 ? 'brightness-50' : 'brightness-100'}`}>
         {renderContent()}
         {selectedMovie && <Modal movie={selectedMovie} onClose={() => setSelectedMovie(null)} />}
       </div>
