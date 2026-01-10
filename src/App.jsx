@@ -425,7 +425,7 @@ const BrandRow = ({ activeRow, activeCol, rowIndex, rowRefMap }) => {
       isActive
         ? 'opacity-100 scale-100 z-50'
         : isNavFocused
-          ? 'opacity-60 scale-95 z-0'
+          ? 'opacity-60 scale-100 z-0'
           : 'opacity-30 scale-95 z-0'
     }`}>
       <div 
@@ -754,7 +754,7 @@ const Hero = React.memo(({ movie, isFocused, activeBtnIndex, onPlay, isModalOpen
     <div className={`relative w-full h-[95vh] rounded-b-[4vw] overflow-hidden transition-all duration-1000 ease-out ${
       isFocused
         ? 'scale-100 brightness-100'
-        : 'scale-[0.98] brightness-50 opacity-60'
+        : 'brightness-50 opacity-60'
     }`}>
       <div className="absolute inset-0 bg-black">
       </div>
@@ -855,7 +855,7 @@ const Hero = React.memo(({ movie, isFocused, activeBtnIndex, onPlay, isModalOpen
       isActive
         ? 'opacity-100 scale-100 z-50'
         : isNavFocused
-          ? 'opacity-60 scale-95 z-0'
+          ? 'opacity-60 scale-100 z-0'
           : 'opacity-30 scale-95 z-0'
     }`}>
       <h2 className={`text-[2.5vw] font-bold text-white -mb-[1vw] z-10 relative flex items-center gap-[1vw] tracking-tight transition-all duration-500 origin-left pl-[4.2vw] ${isActive ? 'translate-x-0 text-white' : '-translate-x-[1.5vw] text-zinc-500'}`}>{title} <ChevronRight className="w-[2vw] h-[2vw] text-white/50 animate-pulse" /></h2>
@@ -1496,7 +1496,7 @@ const GridPage = ({ movies, activeRow, activeCol, onMovieClick, rowRefMap, curre
 
   return (
     <div className="w-full min-h-screen bg-black">
-      <div className={`transition-all duration-700 ease-out ${isPageActive ? 'opacity-100 scale-100 brightness-100' : 'opacity-40 scale-[0.98] brightness-50'}`}>
+      <div className={`transition-all duration-700 ease-out ${isPageActive ? 'opacity-100 scale-100 brightness-100' : 'opacity-40 brightness-50'}`}>
         <div className={`relative w-full h-[40vw] overflow-hidden`}>
            <div className="absolute inset-0">
               <img src={coverImage || "http://moviifox.x10.mx/aset/tv_banner2.webp"} alt="Cover" className="w-full h-full object-cover opacity-60" /> // Hero Fallback
