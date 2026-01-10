@@ -2293,14 +2293,9 @@ export default function App() {
   return (
     <div className="min-h-screen bg-black text-white font-sans overflow-x-hidden selection:bg-white selection:text-black pointer-events-none">
       <Navbar isFocused={activeRow === -2} activeNavIndex={activeCol} activeTab={activeTab} onSelect={handleNavbarSelect} />
-      <div className="relative transition-all duration-300">
-        <div className={`transition-opacity duration-300 ${activeRow === -2 ? 'opacity-70' : 'opacity-100'}`}>
-          {renderContent()}
-          {selectedMovie && <Modal movie={selectedMovie} onClose={() => setSelectedMovie(null)} />}
-        </div>
-        <div
-          className={`pointer-events-none absolute inset-0 bg-black transition-opacity duration-300 ${activeRow === -2 ? 'opacity-10' : 'opacity-0'}`}
-        />
+      <div className={`transition-all duration-300 ${activeRow === -2 ? 'blur-sm' : 'blur-none'}`}>
+        {renderContent()}
+        {selectedMovie && <Modal movie={selectedMovie} onClose={() => setSelectedMovie(null)} />}
       </div>
       <style>{`
         @font-face { font-family: 'Foxgraphie'; src: url('https://raw.githubusercontent.com/Moviifox/trailer/refs/heads/main/foxgraphie_light.otf'); font-weight: 300; }
