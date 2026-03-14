@@ -5,7 +5,7 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 // ⚙️ ตั้งค่า SUPABASE & DATA
 // ==========================================
 const SUPABASE_URL = 'https://dzuckyiplwnlnbeggdxb.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_uqhhhD0Oj4TegojFRkHTSQ_Ecxtf4J_'; 
+const SUPABASE_KEY = 'sb_publishable_uqhhhD0Oj4TegojFRkHTSQ_Ecxtf4J_';
 const CSV_DATA_URL = "https://moviifox.free.nf/movies_data.csv";
 
 
@@ -35,23 +35,23 @@ const TV_PERF_MODE = (() => {
 // ==========================================
 // 🖼️ ICONS (Inline SVG replacements)
 // ==========================================
-const Play = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="6 3 20 12 6 21 6 3"/></svg>;
-const Plus = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>;
-const X = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>;
-const Search = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>;
-const User = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>;
-const ChevronRight = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>;
-const ChevronLeft = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>;
-const ArrowRight = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>;
-const Info = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>;
-const Home = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
-const Layers = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>;
-const Sparkles = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3z"/></svg>;
-const Ghost = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 10h.01"/><path d="M15 10h.01"/><path d="M12 2a8 8 0 0 0-8 8v12l3-3 2.5 2.5L12 19l2.5 2.5L17 19l3 3V10a8 8 0 0 0-8-8z"/></svg>;
-const Tv = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"/><polyline points="17 2 12 7 7 2"/></svg>;
-const Film = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></svg>;
-const Filter = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>;
-const Heart = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/><path d="M7.828 13.07A3 3 0 0 1 12 8.764a3 3 0 0 1 5.004 2.224 3 3 0 0 1-.832 2.083l-3.447 3.62a1 1 0 0 1-1.45-.001z"/></svg>;
+const Play = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="6 3 20 12 6 21 6 3" /></svg>;
+const Plus = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>;
+const X = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>;
+const Search = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>;
+const User = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>;
+const ChevronRight = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>;
+const ChevronLeft = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>;
+const ArrowRight = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>;
+const Info = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" /></svg>;
+const Home = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>;
+const Layers = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2" /><polyline points="2 17 12 22 22 17" /><polyline points="2 12 12 17 22 12" /></svg>;
+const Sparkles = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3z" /></svg>;
+const Ghost = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 10h.01" /><path d="M15 10h.01" /><path d="M12 2a8 8 0 0 0-8 8v12l3-3 2.5 2.5L12 19l2.5 2.5L17 19l3 3V10a8 8 0 0 0-8-8z" /></svg>;
+const Tv = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="15" rx="2" ry="2" /><polyline points="17 2 12 7 7 2" /></svg>;
+const Film = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18" /><line x1="7" y1="2" x2="7" y2="22" /><line x1="17" y1="2" x2="17" y2="22" /><line x1="2" y1="12" x2="22" y2="12" /><line x1="2" y1="7" x2="7" y2="7" /><line x1="2" y1="17" x2="7" y2="17" /><line x1="17" y1="17" x2="22" y2="17" /><line x1="17" y1="7" x2="22" y2="7" /></svg>;
+const Filter = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" /></svg>;
+const Heart = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719" /><path d="M7.828 13.07A3 3 0 0 1 12 8.764a3 3 0 0 1 5.004 2.224 3 3 0 0 1-.832 2.083l-3.447 3.62a1 1 0 0 1-1.45-.001z" /></svg>;
 
 // ==========================================
 // 🛠️ FUNCTIONS
@@ -198,7 +198,7 @@ const parseThaiDate = (input) => {
 };
 
 
- const FALLBACK_IMAGE_URL = "http://moviifox.x10.mx/aset/tv_banner2.webp";
+const FALLBACK_IMAGE_URL = "http://moviifox.x10.mx/aset/tv_banner2.webp";
 
 const getYearFromString = (dateString) => {
   if (!dateString) return '';
@@ -211,71 +211,116 @@ const handleImageError = (e) => {
   try {
     const target = e?.currentTarget || e?.target;
     if (target && target.src !== FALLBACK_IMAGE_URL) target.src = FALLBACK_IMAGE_URL;
-  } catch {}
+  } catch { }
 };
+
+// ==========================================
+// 🚀 LAZY IMAGE (IntersectionObserver)
+// ==========================================
+const LazyImage = React.memo(({ src, alt, className, onError, style, ...rest }) => {
+  const imgRef = useRef(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const el = imgRef.current;
+    if (!el) return;
+
+    if (typeof IntersectionObserver === 'undefined') {
+      setIsVisible(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '300px' }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <img
+      ref={imgRef}
+      src={isVisible ? src : undefined}
+      alt={alt}
+      className={className}
+      style={style}
+      loading="lazy"
+      decoding="async"
+      fetchpriority="low"
+      onError={isVisible ? onError : undefined}
+      {...rest}
+    />
+  );
+});
 
 // ฟังก์ชันแปลงข้อมูลจาก Supabase ให้เป็นรูปแบบที่ App ใช้
 const transformSupabaseData = (data) => {
-  if (!Array.isArray(data)) return []; 
+  if (!Array.isArray(data)) return [];
 
   // Filter out items where publish is 'd' (case insensitive)
   return data
     .filter(item => !item.publish || item.publish.toLowerCase() !== 'd')
     .map(item => {
-    let episodes = [];
-    
-    // 1. ถ้ามีคอลัมน์ episodes และเป็น JSON Array ให้ใช้เลย
-    if (item.episodes && Array.isArray(item.episodes) && item.episodes.length > 0) {
+      let episodes = [];
+
+      // 1. ถ้ามีคอลัมน์ episodes และเป็น JSON Array ให้ใช้เลย
+      if (item.episodes && Array.isArray(item.episodes) && item.episodes.length > 0) {
         episodes = item.episodes;
-    } else {
+      } else {
         // 2. ถ้าไม่มี ให้ลองวนลูปหาจากคอลัมน์ ep01...ep100 (Legacy Support for columns)
         for (let i = 1; i <= 100; i++) {
-            const epNum = i < 10 ? `0${i}` : `${i}`;
-            const linkKey = `ep${epNum}`;
-            const nameKey = `nameep${i}`;
-            const imgKey = `img${epNum}`;
+          const epNum = i < 10 ? `0${i}` : `${i}`;
+          const linkKey = `ep${epNum}`;
+          const nameKey = `nameep${i}`;
+          const imgKey = `img${epNum}`;
 
 
-            if (item[linkKey] && item[linkKey].trim() !== '') {
-                episodes.push({
-                    name: item[nameKey] || `ตอนที่ ${i}`,
-                    link: item[linkKey],
-                    image: item[imgKey] || item.image
-                });
-            }
+          if (item[linkKey] && item[linkKey].trim() !== '') {
+            episodes.push({
+              name: item[nameKey] || `ตอนที่ ${i}`,
+              link: item[linkKey],
+              image: item[imgKey] || item.image
+            });
+          }
         }
-    }
-    
-    // 3. ถ้ายังไม่มีตอน แต่มี movielink (หนังเดี่ยว)
-    if (episodes.length === 0 && item.movielink) {
+      }
+
+      // 3. ถ้ายังไม่มีตอน แต่มี movielink (หนังเดี่ยว)
+      if (episodes.length === 0 && item.movielink) {
         episodes.push({ name: 'Full Movie', link: item.movielink, image: item.image });
-    }
+      }
 
 
-    const releaseDateValue = parseThaiDate(item.release_date || item.year);
+      const releaseDateValue = parseThaiDate(item.release_date || item.year);
 
-    return {
-      ...item,
-      id: item.id || item.ID, 
-      title: item.title || item.title1 || '',
-      title_alt: item.title_alt || item.title2 || '', 
-      // ใช้สำหรับฟิลเตอร์และ logic เดิม
-      category: item.tags || item.categories || item.category || '', 
-      // ใช้แสดงแคปซูลใน Modal: อิงจากคอลัมน์ category ของ Supabase เท่านั้น
-      category_capsules: item.category || '',
-      image: item.image || item['image Featured'],
-      // Map featured video from possible column names (Case insensitive check)
-      featured_video: item.featured_video || item.Featuredvideo || item.featuredVideo || '', 
-      description: item.description || '',
-      genre: item.genre || item.tags || item.type || '',
-      year: item.year || item.release_date || '', 
-      rating: item.rating || item.status || '',
-      type: item.type || (item.category && item.category.includes('series') ? 'Series' : 'Movie'),
-      episodes: episodes,
-      releaseDateValue,
-      release_date: item.release_date || ''
-    };
-  })
+      return {
+        ...item,
+        id: item.id || item.ID,
+        title: item.title || item.title1 || '',
+        title_alt: item.title_alt || item.title2 || '',
+        // ใช้สำหรับฟิลเตอร์และ logic เดิม
+        category: item.tags || item.categories || item.category || '',
+        // ใช้แสดงแคปซูลใน Modal: อิงจากคอลัมน์ category ของ Supabase เท่านั้น
+        category_capsules: item.category || '',
+        image: item.image || item['image Featured'],
+        // Map featured video from possible column names (Case insensitive check)
+        featured_video: item.featured_video || item.Featuredvideo || item.featuredVideo || '',
+        description: item.description || '',
+        genre: item.genre || item.tags || item.type || '',
+        year: item.year || item.release_date || '',
+        rating: item.rating || item.status || '',
+        type: item.type || (item.category && item.category.includes('series') ? 'Series' : 'Movie'),
+        episodes: episodes,
+        releaseDateValue,
+        release_date: item.release_date || ''
+      };
+    })
     .sort((a, b) => {
       const aValue = typeof a.releaseDateValue === 'number' ? a.releaseDateValue : -Infinity;
       const bValue = typeof b.releaseDateValue === 'number' ? b.releaseDateValue : -Infinity;
@@ -296,7 +341,7 @@ const getCategoriesForTab = (movies, activeTab) => {
   let filteredMovies = movies;
 
 
-  if (activeTab === 'festival') { 
+  if (activeTab === 'festival') {
     return movies.filter(m => m.category && m.category.includes('เทศกาล'));
   } else if (activeTab === 'movies') {
     return filteredMovies;
@@ -308,19 +353,19 @@ const getCategoriesForTab = (movies, activeTab) => {
     // === HOME PAGE LOGIC ===
     const categoriesMap = {};
     const priorityCategories = [
-        { key: 'movie', title: 'ภาพยนตร์ล่าสุด' },
-        { key: 'series', title: 'ซีรีส์ล่าสุด' },
-        { key: 'bl', title: 'สายวายต้องฟิน' },
-        { key: 'korea', title: 'เอาใจสายเกา' }
+      { key: 'movie', title: 'ภาพยนตร์ล่าสุด' },
+      { key: 'series', title: 'ซีรีส์ล่าสุด' },
+      { key: 'bl', title: 'สายวายต้องฟิน' },
+      { key: 'korea', title: 'เอาใจสายเกา' }
     ];
-    
+
     priorityCategories.forEach(cat => categoriesMap[cat.title] = []);
 
 
     movies.forEach(movie => {
       if (movie.category) {
         const tags = movie.category.toLowerCase();
-        
+
         if (tags.includes('movie')) categoriesMap['ภาพยนตร์ล่าสุด'].push(movie);
         if (tags.includes('series')) categoriesMap['ซีรีส์ล่าสุด'].push(movie);
         if (tags.includes('bl')) categoriesMap['สายวายต้องฟิน'].push(movie);
@@ -330,9 +375,9 @@ const getCategoriesForTab = (movies, activeTab) => {
 
 
     return priorityCategories.map(cat => ({
-        id: `cat-${cat.key}`,
-        title: cat.title,
-        items: (categoriesMap[cat.title] || []).slice(0, 3)
+      id: `cat-${cat.key}`,
+      title: cat.title,
+      items: (categoriesMap[cat.title] || []).slice(0, 3)
     })).filter(cat => cat.items.length > 0);
   }
 };
@@ -376,17 +421,17 @@ const Navbar = ({ isFocused, activeNavIndex, activeTab, onSelect }) => (
         const Icon = item.icon;
         const isFocusedItem = isFocused && activeNavIndex === index;
         const isActiveTab = activeTab === item.id;
-        
+
         return (
-          <div 
+          <div
             key={item.id}
             onClick={() => onSelect(item.id)}
             className={`
               relative flex items-center justify-center w-[4.5vw] h-[4.5vw] rounded-full transition-all duration-300 cursor-pointer
-              ${isFocusedItem 
-                ? 'bg-white text-black shadow-[0_0_1.5vw_rgba(255,255,255,0.5)] scale-110 z-10' 
-                : isActiveTab 
-                  ? 'text-white bg-white/20' 
+              ${isFocusedItem
+                ? 'bg-white text-black shadow-[0_0_1.5vw_rgba(255,255,255,0.5)] scale-110 z-10'
+                : isActiveTab
+                  ? 'text-white bg-white/20'
                   : 'text-zinc-500 hover:text-white hover:bg-white/5'}
             `}
           >
@@ -397,7 +442,7 @@ const Navbar = ({ isFocused, activeNavIndex, activeTab, onSelect }) => (
               </span>
             )}
             {isActiveTab && !isFocusedItem && (
-               <span className="absolute -bottom-[0.5vw] w-[0.3vw] h-[0.3vw] bg-white rounded-full"></span>
+              <span className="absolute -bottom-[0.5vw] w-[0.3vw] h-[0.3vw] bg-white rounded-full"></span>
             )}
           </div>
         );
@@ -407,60 +452,58 @@ const Navbar = ({ isFocused, activeNavIndex, activeTab, onSelect }) => (
 );
 
 
-const BrandRow = ({ activeRow, activeCol, rowIndex, rowRefMap }) => {
+const BrandRow = React.memo(({ activeRow, activeCol, rowIndex, rowRefMap }) => {
   const brands = [
     { id: 1, image: 'http://moviifox.x10.mx/aset/netflix.webp' },
     { id: 2, image: 'http://moviifox.x10.mx/aset/disney.webp' },
-    { id: 3, image: 'http://moviifox.x10.mx/aset/hbo.webp' },
+    { id: 3, image: 'https://dzuckyiplwnlnbeggdxb.supabase.co/storage/v1/object/public/img/hbo.webp' },
     { id: 4, image: 'http://moviifox.x10.mx/aset/marvel.webp' }
   ];
-  
+
   const isActive = activeRow === rowIndex;
   const isNavFocused = activeRow === -2;
   const containerRef = useRef(null);
 
 
   return (
-    <div className={`py-[3.5vw] transition-all duration-700 ease-out relative ${
-      isActive
-        ? 'opacity-100 scale-100 z-50'
-        : isNavFocused
-          ? 'opacity-60 scale-100 z-0'
-          : 'opacity-30 scale-95 z-0'
-    }`}>
-      <div 
+    <div className={`py-[3.5vw] transition-all duration-700 ease-out relative ${isActive
+      ? 'opacity-100 scale-100 z-50'
+      : isNavFocused
+        ? 'opacity-60 scale-100 z-0'
+        : 'opacity-30 scale-95 z-0'
+      }`}>
+      <div
         ref={containerRef}
         className="flex gap-[2vw] overflow-visible px-[4.2vw] w-full"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {brands.map((brand, index) => (
-          <div 
-             key={index}
-             ref={el => {
-                if(!rowRefMap.current[rowIndex]) rowRefMap.current[rowIndex] = [];
-                rowRefMap.current[rowIndex][index] = el;
-             }}
-             className={`
+          <div
+            key={index}
+            ref={el => {
+              if (!rowRefMap.current[rowIndex]) rowRefMap.current[rowIndex] = [];
+              rowRefMap.current[rowIndex][index] = el;
+            }}
+            className={`
                relative flex-1 aspect-[16/9] rounded-[1.5vw] cursor-pointer transition-all duration-300 overflow-hidden
-               ${isActive && activeCol === index 
-                 ? 'scale-110 z-20 ring-[0.3vw] ring-white/80 shadow-[0_0_2vw_rgba(255,255,255,0.3)] opacity-100' 
-                 : 'scale-100 opacity-50'}
+               ${isActive && activeCol === index
+                ? 'scale-110 z-20 ring-[0.3vw] ring-white/80 shadow-[0_0_2vw_rgba(255,255,255,0.3)] opacity-100'
+                : 'scale-100 opacity-50'}
              `}
           >
-             <img 
-               src={brand.image} 
-               alt={`Brand ${index + 1}`}
-               className="w-full h-full object-cover object-center"
-               decoding="async"
-               onError={handleImageError} // Brand Fallback
-             />
-             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+            <LazyImage
+              src={brand.image}
+              alt={`Brand ${index + 1}`}
+              className="w-full h-full object-cover object-center"
+              onError={handleImageError}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
           </div>
         ))}
       </div>
     </div>
   );
-};
+});
 
 
 // Standard Card for Rows
@@ -493,70 +536,68 @@ const MovieCard = React.memo(({ movie, isFocused, onClick, innerRef }) => {
 
 
   return (
-    <div 
-        ref={innerRef}
-        onClick={handleClick}
-        className={`
+    <div
+      ref={innerRef}
+      onClick={handleClick}
+      className={`
         relative flex-none w-[24vw] aspect-[16/9] rounded-[2vw] cursor-pointer transition-all duration-300 ease-out
         group
-        ${isFocused 
-            ? 'scale-110 z-20 shadow-[0_0_2vw_rgba(255,255,255,0.3)] ring-[0.3vw] ring-white/80 translate-y-[-0.8vw]' 
-            : 'hover:scale-105 z-0 opacity-60 hover:opacity-100 hover:brightness-110'}
+        ${isFocused
+          ? 'scale-110 z-20 shadow-[0_0_2vw_rgba(255,255,255,0.3)] ring-[0.3vw] ring-white/80 translate-y-[-0.8vw]'
+          : 'hover:scale-105 z-0 opacity-60 hover:opacity-100 hover:brightness-110'}
         `}
     >
-        <div className="absolute inset-0 rounded-[2vw] overflow-hidden bg-zinc-800">
-        <img 
-            src={movie.image} 
-            alt={movie.title} 
-            className="w-full h-full object-cover transition-transform duration-700"
-            loading="lazy"
-            decoding="async"
-            onError={handleImageError} // Card Fallback
+      <div className="absolute inset-0 rounded-[2vw] overflow-hidden bg-zinc-800">
+        <LazyImage
+          src={movie.image}
+          alt={movie.title}
+          className="w-full h-full object-cover transition-transform duration-700"
+          onError={handleImageError}
         />
         <div className={`absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent transition-opacity duration-300 ${isFocused ? 'opacity-100' : 'opacity-0'}`} />
-        
+
         {/* Type Badge (Top Right) aligned with GridMovieCard */}
         {movie.type && (
-            <div className="absolute top-[0.8vw] right-[0.8vw] flex gap-[0.3vw] z-10">
-                <span className="bg-black/40 backdrop-blur-md text-white/90 text-[1vw] px-[0.5vw] py-[0.15vw] rounded-[0.8vw] border border-white/10 flex items-center gap-1 font-light uppercase tracking-wider">
-                {movie.type}
-                </span>
-            </div>
+          <div className="absolute top-[0.8vw] right-[0.8vw] flex gap-[0.3vw] z-10">
+            <span className="bg-black/40 backdrop-blur-md text-white/90 text-[1vw] px-[0.5vw] py-[0.15vw] rounded-[0.8vw] border border-white/10 flex items-center gap-1 font-light uppercase tracking-wider">
+              {movie.type}
+            </span>
+          </div>
         )}
-        </div>
+      </div>
 
 
-        {/* Floating Title */}
-        <div className={`absolute -bottom-[5vw] left-[0.8vw] right-[0.8vw] text-center transition-all duration-300 ${isFocused ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-[1.5vw]'}`}>
+      {/* Floating Title */}
+      <div className={`absolute -bottom-[5vw] left-[0.8vw] right-[0.8vw] text-center transition-all duration-300 ${isFocused ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-[1.5vw]'}`}>
         {/* Container สำหรับชื่อหลัก */}
         <div className="w-full overflow-hidden whitespace-nowrap px-[0.5vw]">
-            <h3 
-                ref={titleRef}
-                className={`text-white font-semibold text-[1.5vw] drop-shadow-lg tracking-wide
+          <h3
+            ref={titleRef}
+            className={`text-white font-semibold text-[1.5vw] drop-shadow-lg tracking-wide
                     ${isFocused && shouldScrollTitle ? 'animate-marquee inline-block' : 'truncate block'}
                 `}
-            >
-                {movie.title}
-                {isFocused && shouldScrollTitle && <span className="inline-block w-[2vw]"></span>}
-                {isFocused && shouldScrollTitle && movie.title}
-            </h3>
+          >
+            {movie.title}
+            {isFocused && shouldScrollTitle && <span className="inline-block w-[2vw]"></span>}
+            {isFocused && shouldScrollTitle && movie.title}
+          </h3>
         </div>
-        
+
         {/* Container สำหรับชื่อรอง (บรรทัดล่าง) */}
         <div className="w-full overflow-hidden whitespace-nowrap px-[0.5vw]">
-             <p 
-                ref={subtitleRef}
-                className={`text-zinc-400 font-normal tracking-wider uppercase
+          <p
+            ref={subtitleRef}
+            className={`text-zinc-400 font-normal tracking-wider uppercase
                     text-[1.4vw] /* Increased size */
                     ${isFocused && shouldScrollSubtitle ? 'animate-marquee inline-block' : 'truncate block'}
                 `}
-            >
-                {movie.title_alt}
-                {isFocused && shouldScrollSubtitle && <span className="inline-block w-[2vw]"></span>}
-                {isFocused && shouldScrollSubtitle && movie.title_alt}
-            </p>
+          >
+            {movie.title_alt}
+            {isFocused && shouldScrollSubtitle && <span className="inline-block w-[2vw]"></span>}
+            {isFocused && shouldScrollSubtitle && movie.title_alt}
+          </p>
         </div>
-        </div>
+      </div>
     </div>
   );
 });
@@ -564,21 +605,21 @@ const MovieCard = React.memo(({ movie, isFocused, onClick, innerRef }) => {
 
 // Special "View More" Card
 const ViewMoreCard = React.memo(({ isFocused, onClick, innerRef }) => (
-  <div 
+  <div
     ref={innerRef}
     onClick={onClick}
     className={`
       relative flex-none w-[14vw] aspect-[16/9] rounded-[2vw] cursor-pointer transition-all duration-300 ease-out
       group flex items-center justify-center bg-zinc-900 border border-white/10
-      ${isFocused 
-        ? 'scale-110 z-20 shadow-[0_0_2vw_rgba(255,255,255,0.3)] ring-[0.3vw] ring-white/80' 
+      ${isFocused
+        ? 'scale-110 z-20 shadow-[0_0_2vw_rgba(255,255,255,0.3)] ring-[0.3vw] ring-white/80'
         : 'hover:scale-105 opacity-70'}
     `}
   >
-     <div className="flex flex-col items-center gap-[0.5vw]">
-        <div className={`p-[1vw] rounded-full transition-colors ${isFocused ? 'bg-white text-black' : 'bg-zinc-800 text-white'}`}><ArrowRight size="2vw" /></div>
-        <span className={`text-[1vw] font-medium ${isFocused ? 'text-white' : 'text-zinc-400'}`}>ดูทั้งหมด</span>
-     </div>
+    <div className="flex flex-col items-center gap-[0.5vw]">
+      <div className={`p-[1vw] rounded-full transition-colors ${isFocused ? 'bg-white text-black' : 'bg-zinc-800 text-white'}`}><ArrowRight size="2vw" /></div>
+      <span className={`text-[1vw] font-medium ${isFocused ? 'text-white' : 'text-zinc-400'}`}>ดูทั้งหมด</span>
+    </div>
   </div>
 ));
 
@@ -593,39 +634,37 @@ const GridMovieCard = React.memo(({ movie, isFocused, onClick, innerRef }) => {
 
 
   return (
-    <div 
+    <div
       ref={innerRef}
       onClick={handleClick}
       className={`
         relative w-full aspect-[16/9] rounded-[1.5vw] cursor-pointer transition-all duration-300
         group overflow-hidden
-        ${isFocused 
-          ? 'scale-105 z-20 ring-[0.3vw] ring-white/80 shadow-[0_0_2vw_rgba(255,255,255,0.3)]' 
+        ${isFocused
+          ? 'scale-105 z-20 ring-[0.3vw] ring-white/80 shadow-[0_0_2vw_rgba(255,255,255,0.3)]'
           : 'hover:scale-105 opacity-60 hover:opacity-100'}
       `}
     >
       {/* Image Container */}
       <div className="absolute inset-0 bg-zinc-800">
-         <img 
-            src={movie.image} 
-            alt={movie.title} 
-            className="w-full h-full object-cover transition-transform duration-500" 
-            loading="lazy" 
-            decoding="async"
-            onError={handleImageError} /* Card Fallback */
-         />
-         
-         {/* Gradient Overlay */}
-         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
-         
-         {/* Badge on Image */}
-         <div className="absolute top-[0.8vw] right-[0.8vw] flex gap-[0.3vw]">
-            {movie.type && (
-               <span className="bg-black/40 backdrop-blur-md text-white/90 text-[1vw] px-[0.5vw] py-[0.15vw] rounded-[0.8vw] border border-white/10 flex items-center gap-1 font-light uppercase tracking-wider">
-               {movie.type}
-               </span>
-            )}
-         </div>
+        <LazyImage
+          src={movie.image}
+          alt={movie.title}
+          className="w-full h-full object-cover transition-transform duration-500"
+          onError={handleImageError}
+        />
+
+        {/* Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+
+        {/* Badge on Image */}
+        <div className="absolute top-[0.8vw] right-[0.8vw] flex gap-[0.3vw]">
+          {movie.type && (
+            <span className="bg-black/40 backdrop-blur-md text-white/90 text-[1vw] px-[0.5vw] py-[0.15vw] rounded-[0.8vw] border border-white/10 flex items-center gap-1 font-light uppercase tracking-wider">
+              {movie.type}
+            </span>
+          )}
+        </div>
       </div>
 
 
@@ -635,13 +674,13 @@ const GridMovieCard = React.memo(({ movie, isFocused, onClick, innerRef }) => {
         transition-all duration-300
         ${isFocused ? 'translate-y-0' : 'translate-y-[0.5vw]'}
       `}>
-         <h3 className={`text-white font-semibold text-[1.6vw] truncate drop-shadow-lg leading-tight ${isFocused ? 'text-white' : 'text-zinc-200'}`}>{movie.title}</h3>
-         
-         <div className="flex items-center gap-[0.6vw] mt-[0.4vw]">
-           <span className="text-zinc-300 text-[1.4vw] font-regular truncate flex-1">{movie.title_alt}</span>
-           {movie.title_alt && displayYear && <span className="w-[0.25vw] h-[0.25vw] bg-zinc-500 rounded-full flex-shrink-0"></span>}
-           <span className="text-zinc-300 text-[1.4vw] font-regular flex-shrink-0">{displayYear}</span>
-         </div>
+        <h3 className={`text-white font-semibold text-[1.6vw] truncate drop-shadow-lg leading-tight ${isFocused ? 'text-white' : 'text-zinc-200'}`}>{movie.title}</h3>
+
+        <div className="flex items-center gap-[0.6vw] mt-[0.4vw]">
+          <span className="text-zinc-300 text-[1.4vw] font-regular truncate flex-1">{movie.title_alt}</span>
+          {movie.title_alt && displayYear && <span className="w-[0.25vw] h-[0.25vw] bg-zinc-500 rounded-full flex-shrink-0"></span>}
+          <span className="text-zinc-300 text-[1.4vw] font-regular flex-shrink-0">{displayYear}</span>
+        </div>
       </div>
     </div>
   );
@@ -670,7 +709,7 @@ const Hero = React.memo(({ movie, isFocused, activeBtnIndex, onPlay, isModalOpen
     const timer = setTimeout(() => {
       setCanShowVideo(true);
       if (videoRef.current) {
-         videoRef.current.load();
+        videoRef.current.load();
       }
     }, 3000);
 
@@ -680,19 +719,19 @@ const Hero = React.memo(({ movie, isFocused, activeBtnIndex, onPlay, isModalOpen
 
 
   useEffect(() => {
-      // Force play when conditions met
-      if (canShowVideo && videoRef.current) {
-          const playPromise = videoRef.current.play();
-          if (playPromise !== undefined) {
-              playPromise.then(_ => {
-                  // Playback started
-              })
-              .catch(error => {
-                  console.warn("Auto-play was prevented", error);
-                  // Retry might be needed here or handled by onError
-              });
-          }
+    // Force play when conditions met
+    if (canShowVideo && videoRef.current) {
+      const playPromise = videoRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.then(_ => {
+          // Playback started
+        })
+          .catch(error => {
+            console.warn("Auto-play was prevented", error);
+            // Retry might be needed here or handled by onError
+          });
       }
+    }
   }, [canShowVideo, retryKey]);
 
 
@@ -704,7 +743,7 @@ const Hero = React.memo(({ movie, isFocused, activeBtnIndex, onPlay, isModalOpen
       if (isModalOpen || !isFocused || !canShowVideo) {
         v.pause();
       }
-    } catch {}
+    } catch { }
   }, [isModalOpen, isFocused, canShowVideo, movie.id]);
 
 
@@ -717,53 +756,52 @@ const Hero = React.memo(({ movie, isFocused, activeBtnIndex, onPlay, isModalOpen
       if (v.paused) {
         const p = v.play();
         if (p && typeof p.then === 'function') {
-          p.catch(() => {});
+          p.catch(() => { });
         }
       }
-    } catch {}
+    } catch { }
   }, [isModalOpen, isFocused, canShowVideo, retryKey, movie.id]);
 
 
   const handleVideoError = () => {
-      console.warn("Video failed to load/play, retrying...", movie.featured_video);
-      setVideoReady(false);
-      setTimeout(() => {
-          setRetryKey(prev => prev + 1);
-      }, 3000);
+    console.warn("Video failed to load/play, retrying...", movie.featured_video);
+    setVideoReady(false);
+    setTimeout(() => {
+      setRetryKey(prev => prev + 1);
+    }, 3000);
   };
 
 
   const handleVideoLoaded = () => {
-      setVideoReady(true);
+    setVideoReady(true);
   };
 
 
   if (movie.id === 'loading') {
     return (
       <div className={`relative w-full h-[95vh] rounded-b-[4vw] overflow-hidden bg-black flex items-center justify-center transition-all duration-1000 ease-out ${isFocused ? 'scale-100' : 'scale-[0.98] opacity-60'}`}>
-         <div className="flex flex-col items-center gap-4 animate-pulse">
-            <div className="w-[4vw] h-[4vw] border-[0.4vw] border-zinc-800 border-t-white rounded-full animate-spin"></div>
-            <span className="text-white/50 text-[1.2vw] font-light tracking-widest">กำลังโหลด...</span>
-         </div>
+        <div className="flex flex-col items-center gap-4 animate-pulse">
+          <div className="w-[4vw] h-[4vw] border-[0.4vw] border-zinc-800 border-t-white rounded-full animate-spin"></div>
+          <span className="text-white/50 text-[1.2vw] font-light tracking-widest">กำลังโหลด...</span>
+        </div>
       </div>
     );
   }
 
 
   return (
-    <div className={`relative w-full h-[95vh] rounded-b-[4vw] overflow-hidden transition-all duration-1000 ease-out ${
-      isFocused
-        ? 'scale-100 brightness-100'
-        : 'brightness-50 opacity-60'
-    }`}>
+    <div className={`relative w-full h-[95vh] rounded-b-[4vw] overflow-hidden transition-all duration-1000 ease-out ${isFocused
+      ? 'scale-100 brightness-100'
+      : 'brightness-50 opacity-60'
+      }`}>
       <div className="absolute inset-0 bg-black">
       </div>
-      
+
       {/* Background Image (Always present as base) */}
-      <img 
-        src={movie.image} 
-        alt={movie.title} 
-        className={`absolute inset-0 w-full h-full object-cover ${TV_PERF_MODE ? '' : 'animate-pan-zoom'} opacity-80`} 
+      <img
+        src={movie.image}
+        alt={movie.title}
+        className={`absolute inset-0 w-full h-full object-cover ${TV_PERF_MODE ? '' : 'animate-pan-zoom'} opacity-80`}
         decoding="async"
         onError={handleImageError} // Hero Fallback
       />
@@ -771,25 +809,25 @@ const Hero = React.memo(({ movie, isFocused, activeBtnIndex, onPlay, isModalOpen
 
       {/* Background Video */}
       {movie.featured_video && (
-         <video
-            key={`${movie.id}-${retryKey}`}
-            ref={videoRef}
-            src={movie.featured_video}
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload={canShowVideo ? 'auto' : 'none'}
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out scale-[1.3] ${canShowVideo && videoReady ? 'opacity-100' : 'opacity-0'}`}
-            onCanPlay={handleVideoLoaded}
-            onError={handleVideoError}
-         />
+        <video
+          key={`${movie.id}-${retryKey}`}
+          ref={videoRef}
+          src={movie.featured_video}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload={canShowVideo ? 'auto' : 'none'}
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out scale-[1.3] ${canShowVideo && videoReady ? 'opacity-100' : 'opacity-0'}`}
+          onCanPlay={handleVideoLoaded}
+          onError={handleVideoError}
+        />
       )}
 
 
       <div className="absolute inset-0 bg-gradient-to-t from-[#000] via-[#000]/40 to-transparent" />
       <div className="absolute inset-0 bg-gradient-to-r from-[#000]/80 via-transparent to-transparent" />
-      
+
       <div className={`absolute bottom-0 left-0 w-full px-[4.2vw] pb-[6.25vw] flex flex-col items-start gap-[1.5vw] transition-all duration-700 ${isFocused ? 'translate-y-0 opacity-100' : 'translate-y-[2.5vw] opacity-80'}`}>
         <h1 className="text-[5.6vw] font-semibold text-transparent bg-clip-text bg-gradient-to-b from-white to-white/60 drop-shadow-2xl leading-[0.9] tracking-normal">{movie.title}</h1>
         <p className={`text-zinc-300 text-[1.5vw] max-w-[55vw] line-clamp-2 leading-relaxed font-light ${TV_PERF_MODE ? '' : 'mix-blend-plus-lighter'}`}>{movie.description}</p>
@@ -804,7 +842,7 @@ const Hero = React.memo(({ movie, isFocused, activeBtnIndex, onPlay, isModalOpen
 });
 
 
- const Row = React.memo(({ title, items, rowIndex, activeRow, activeCol, onMovieClick, onViewMore, rowRefMap }) => {
+const Row = React.memo(({ title, items, rowIndex, activeRow, activeCol, onMovieClick, onViewMore, rowRefMap }) => {
   const containerRef = useRef(null);
   const limitedItems = useMemo(() => items.slice(0, 5), [items]); // ลดจำนวนการ์ดจาก 12 เรื่องเหลือ 5 เรื่อง
   const containerStyle = useMemo(() => ({ scrollbarWidth: 'none', msOverflowStyle: 'none', scrollBehavior: TV_PERF_MODE ? 'auto' : 'smooth' }), []);
@@ -831,7 +869,7 @@ const Hero = React.memo(({ movie, isFocused, activeBtnIndex, onPlay, isModalOpen
           const cRect = container.getBoundingClientRect();
           const isFullyVisible = rect.left >= cRect.left && rect.right <= cRect.right;
           if (isFullyVisible) return;
-        } catch {}
+        } catch { }
         try {
           el.scrollIntoView({ behavior: TV_PERF_MODE ? 'auto' : 'smooth', inline: 'nearest', block: 'nearest' });
         } catch {
@@ -843,7 +881,7 @@ const Hero = React.memo(({ movie, isFocused, activeBtnIndex, onPlay, isModalOpen
             } else if (rect.right > cRect.right) {
               container.scrollTo({ left: container.scrollLeft + (rect.right - cRect.right), behavior: TV_PERF_MODE ? 'auto' : 'smooth' });
             }
-          } catch {}
+          } catch { }
         }
       }
     }
@@ -851,13 +889,12 @@ const Hero = React.memo(({ movie, isFocused, activeBtnIndex, onPlay, isModalOpen
   const isActive = activeRow === rowIndex;
   const isNavFocused = activeRow === -2;
   return (
-    <div className={`py-[0.8vw] transition-all duration-700 ease-out relative ${
-      isActive
-        ? 'opacity-100 scale-100 z-50'
-        : isNavFocused
-          ? 'opacity-60 scale-100 z-0'
-          : 'opacity-30 scale-95 z-0'
-    }`}>
+    <div style={{ contentVisibility: 'auto', containIntrinsicSize: '0 500px' }} className={`py-[0.8vw] transition-all duration-700 ease-out relative ${isActive
+      ? 'opacity-100 scale-100 z-50'
+      : isNavFocused
+        ? 'opacity-60 scale-100 z-0'
+        : 'opacity-30 scale-95 z-0'
+      }`}>
       <h2 className={`text-[2.5vw] font-bold text-white -mb-[1vw] z-10 relative flex items-center gap-[1vw] tracking-tight transition-all duration-500 origin-left pl-[4.2vw] ${isActive ? 'translate-x-0 text-white' : '-translate-x-[1.5vw] text-zinc-500'}`}>{title} <ChevronRight className="w-[2vw] h-[2vw] text-white/50 animate-pulse" /></h2>
       <div ref={containerRef} className="flex gap-[2vw] overflow-x-auto overflow-y-hidden pb-[8vw] pt-[5vw] px-[4.2vw] w-full" style={containerStyle}>
         {limitedItems.map((item, colIndex) => (
@@ -907,7 +944,7 @@ const Modal = ({ movie, onClose }) => {
 
     if (preferHistory && overlayStateIsFullscreen) {
       awaitingFullscreenPop.current = true;
-      try { window.__moviifoxSuppressModalPop = true; } catch {}
+      try { window.__moviifoxSuppressModalPop = true; } catch { }
       try {
         window.history.back();
       } catch {
@@ -935,7 +972,7 @@ const Modal = ({ movie, onClose }) => {
     try {
       const target = url.startsWith('//') ? `https:${url}` : url;
       setFullscreenSrc(target);
-    } catch {}
+    } catch { }
   };
 
   const isSeries = ((movie?.category || movie?.type || '')).toLowerCase().includes('series');
@@ -956,7 +993,7 @@ const Modal = ({ movie, onClose }) => {
 
       if (fullscreenSrc) {
         if (isTvBackKey || isTvBackCode || e.key === 'Escape' || e.key === 'Backspace') {
-          try { e.preventDefault(); } catch {}
+          try { e.preventDefault(); } catch { }
           closeFullscreen(true);
         }
         return;
@@ -966,7 +1003,7 @@ const Modal = ({ movie, onClose }) => {
       if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) e.preventDefault();
       // TV remote Back normalization inside modal
       if (isTvBackKey || isTvBackCode) {
-        try { e.preventDefault(); } catch {}
+        try { e.preventDefault(); } catch { }
         if (showDescPopup) {
           if (window.history.length > 0) {
             try { window.history.back(); } catch { setShowDescPopup(false); }
@@ -1077,15 +1114,15 @@ const Modal = ({ movie, onClose }) => {
           setFocusMore(false);
           setFocusClose(true);
           // scroll to top so X and top content are visible
-          try { rightPanelRef.current?.scrollTo({ top: 0, behavior: 'smooth' }); } catch {}
-          try { titleRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch {}
+          try { rightPanelRef.current?.scrollTo({ top: 0, behavior: 'smooth' }); } catch { }
+          try { titleRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch { }
           return;
         }
         if (!focusClose && !focusMore && epFocus === -1) {
           if (hasMoreDesc) { setFocusMore(true); return; }
           setFocusClose(true);
-          try { rightPanelRef.current?.scrollTo({ top: 0, behavior: 'smooth' }); } catch {}
-          try { titleRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch {}
+          try { rightPanelRef.current?.scrollTo({ top: 0, behavior: 'smooth' }); } catch { }
+          try { titleRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch { }
           return;
         }
         // Navigate up inside episodes grid (3 columns)
@@ -1097,7 +1134,7 @@ const Modal = ({ movie, onClose }) => {
             // Scroll to top when moving from row 2+ to row 1
             const isMovingToFirstRow = epFocus >= cols && prev < cols;
             if (isMovingToFirstRow) {
-              try { rightPanelRef.current?.scrollTo({ top: 0, behavior: 'smooth' }); } catch {}
+              try { rightPanelRef.current?.scrollTo({ top: 0, behavior: 'smooth' }); } catch { }
             }
           } else {
             // Leave episodes grid upwards back to trailer button
@@ -1135,7 +1172,7 @@ const Modal = ({ movie, onClose }) => {
   // When focusing the X button, ensure the top content is visible
   useEffect(() => {
     if (focusClose) {
-      try { rightPanelRef.current?.scrollTo({ top: 0, behavior: 'smooth' }); } catch {}
+      try { rightPanelRef.current?.scrollTo({ top: 0, behavior: 'smooth' }); } catch { }
     }
   }, [focusClose]);
 
@@ -1158,7 +1195,7 @@ const Modal = ({ movie, onClose }) => {
             panel.scrollTo({ top: panel.scrollTop + deltaTop, behavior: 'smooth' });
           }
         }
-      } catch {}
+      } catch { }
     }
   }, [focusMore]);
 
@@ -1192,10 +1229,10 @@ const Modal = ({ movie, onClose }) => {
       if (!iframeEl) return;
       try {
         iframeEl.focus({ preventScroll: true });
-      } catch {}
+      } catch { }
       try {
         iframeEl.contentWindow?.focus();
-      } catch {}
+      } catch { }
       attempts += 1;
       if (attempts < maxAttempts && fullscreenSrc) {
         setTimeout(tryFocus, 120);
@@ -1232,18 +1269,18 @@ const Modal = ({ movie, onClose }) => {
   }, [fullscreenSrc, clearFullscreenFallback]);
 
   useEffect(() => {
-    try { window.__moviifoxFullscreenOpen = !!fullscreenSrc; } catch {}
+    try { window.__moviifoxFullscreenOpen = !!fullscreenSrc; } catch { }
     return () => {
-      try { window.__moviifoxFullscreenOpen = false; } catch {}
+      try { window.__moviifoxFullscreenOpen = false; } catch { }
     };
   }, [fullscreenSrc]);
 
   // Push a history state when opening overlays so hardware back triggers popstate
   useEffect(() => {
     if (fullscreenSrc) {
-      try { window.history.pushState({ overlay: 'fullscreen' }, ''); } catch {}
+      try { window.history.pushState({ overlay: 'fullscreen' }, ''); } catch { }
     } else if (showDescPopup) {
-      try { window.history.pushState({ overlay: 'desc' }, ''); } catch {}
+      try { window.history.pushState({ overlay: 'desc' }, ''); } catch { }
     }
   }, [showDescPopup, fullscreenSrc]);
 
@@ -1251,12 +1288,12 @@ const Modal = ({ movie, onClose }) => {
   useEffect(() => {
     const onPop = () => {
       if (fullscreenSrc) {
-        try { window.__moviifoxSuppressModalPop = true; } catch {}
+        try { window.__moviifoxSuppressModalPop = true; } catch { }
         awaitingFullscreenPop.current = false;
         clearFullscreenFallback();
         setFullscreenSrc(null);
         setTimeout(() => {
-          try { window.__moviifoxSuppressModalPop = false; } catch {}
+          try { window.__moviifoxSuppressModalPop = false; } catch { }
         }, 0);
         return;
       }
@@ -1313,7 +1350,6 @@ const Modal = ({ movie, onClose }) => {
             className="w-full h-full"
             ref={iframeRef}
             tabIndex={0}
-            sandbox="allow-forms allow-scripts allow-same-origin allow-pointer-lock"
             loading="lazy"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen; keyboard-map"
             allowFullScreen
@@ -1480,7 +1516,7 @@ const Pagination = ({ totalItems, itemsPerPage, currentPage, activeIndex, isFocu
     <div className="flex justify-center mt-[4vw] pb-[6vw]">
       <div className={`flex items-center gap-[0.6vw] p-[0.6vw] rounded-full border border-white/10 backdrop-blur-2xl bg-black/40 shadow-[0_0.5vw_2vw_rgba(0,0,0,0.5)] transition-all duration-500 ${isFocused ? 'scale-105 ring-1 ring-white/20 shadow-[0_0_3vw_rgba(255,255,255,0.15)]' : 'scale-100'}`}>
         {items.map((item, index) => (
-           <button key={index} className={`${getButtonStyle(isFocused && activeIndex === index, item.active, item.type === 'page')} ${item.type === 'page' ? 'text-[1.8vw]' : 'text-[1.3vw]'}`} onClick={() => { if (item.type === 'page') onPageChange(item.page); else if (item.type === 'prev') onPageChange(item.page); else if (item.type === 'next') onPageChange(item.page); }}>{item.label}</button>
+          <button key={index} className={`${getButtonStyle(isFocused && activeIndex === index, item.active, item.type === 'page')} ${item.type === 'page' ? 'text-[1.8vw]' : 'text-[1.3vw]'}`} onClick={() => { if (item.type === 'page') onPageChange(item.page); else if (item.type === 'prev') onPageChange(item.page); else if (item.type === 'next') onPageChange(item.page); }}>{item.label}</button>
         ))}
       </div>
     </div>
@@ -1498,41 +1534,41 @@ const GridPage = ({ movies, activeRow, activeCol, onMovieClick, rowRefMap, curre
     <div className="w-full min-h-screen bg-black">
       <div className={`transition-all duration-700 ease-out ${isPageActive ? 'opacity-100 scale-100 brightness-100' : 'opacity-40 brightness-50'}`}>
         <div className={`relative w-full h-[40vw] overflow-hidden`}>
-           <div className="absolute inset-0">
-              <img src={coverImage || "http://moviifox.x10.mx/aset/tv_banner2.webp"} alt="Cover" className="w-full h-full object-cover opacity-60" /> // Hero Fallback
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
-              <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-transparent to-black/80" />
-           </div>
-           <div className="absolute bottom-0 left-0 w-full px-[4vw] pb-[2vw] flex items-end justify-between">
-              <div>
-                <h1 className="font-bold leading-none drop-shadow-xl" 
-                    style={{
-                         fontSize: titleStyle?.fontSize || '3.5vw',
-                         color: titleStyle?.color || 'white',
-                         fontFamily: titleStyle?.fontFamily || 'Foxgraphie, sans-serif'
-                    }}>
-                    {pageTitle || 'ภาพยนตร์/ซีรีส์'}
-                </h1>
-                <span className="text-[1.5vw] text-zinc-300 font-light tracking-widest drop-shadow-md">{pageSubtitle || 'Movies/Series'}</span>
-              </div>
-              {showFilters && <div className="mb-[0.5vw]"><GridFilter activeIndex={activeCol} isFocused={activeRow === -1} currentFilter={currentFilter} onSelect={onFilterChange} /></div>}
-           </div>
+          <div className="absolute inset-0">
+            <img src={coverImage || "http://moviifox.x10.mx/aset/tv_banner2.webp"} alt="Cover" className="w-full h-full object-cover opacity-60" /> // Hero Fallback
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-transparent to-black/80" />
+          </div>
+          <div className="absolute bottom-0 left-0 w-full px-[4vw] pb-[2vw] flex items-end justify-between">
+            <div>
+              <h1 className="font-bold leading-none drop-shadow-xl"
+                style={{
+                  fontSize: titleStyle?.fontSize || '3.5vw',
+                  color: titleStyle?.color || 'white',
+                  fontFamily: titleStyle?.fontFamily || 'Foxgraphie, sans-serif'
+                }}>
+                {pageTitle || 'ภาพยนตร์/ซีรีส์'}
+              </h1>
+              <span className="text-[1.5vw] text-zinc-300 font-light tracking-widest drop-shadow-md">{pageSubtitle || 'Movies/Series'}</span>
+            </div>
+            {showFilters && <div className="mb-[0.5vw]"><GridFilter activeIndex={activeCol} isFocused={activeRow === -1} currentFilter={currentFilter} onSelect={onFilterChange} /></div>}
+          </div>
         </div>
         <div className="px-[4vw] pt-[2.5vw]">
           <div className="grid grid-cols-4 gap-[2vw]">
             {currentMovies.map((movie, index) => {
-               const rowIndex = Math.floor(index / gridColumns);
-               const colIndex = index % gridColumns;
-               const isFocused = activeRow === rowIndex && activeCol === colIndex;
-               return (
-                 <GridMovieCard key={movie.id} movie={movie} isFocused={isFocused} onClick={onMovieClick} innerRef={el => { if(!rowRefMap.current[rowIndex]) rowRefMap.current[rowIndex] = []; rowRefMap.current[rowIndex][colIndex] = el; }} />
-               );
+              const rowIndex = Math.floor(index / gridColumns);
+              const colIndex = index % gridColumns;
+              const isFocused = activeRow === rowIndex && activeCol === colIndex;
+              return (
+                <GridMovieCard key={movie.id} movie={movie} isFocused={isFocused} onClick={onMovieClick} innerRef={el => { if (!rowRefMap.current[rowIndex]) rowRefMap.current[rowIndex] = []; rowRefMap.current[rowIndex][colIndex] = el; }} />
+              );
             })}
           </div>
           {paginationItems.length > 0 ? (
-            <Pagination totalItems={movies.length} itemsPerPage={ITEMS_PER_PAGE} currentPage={currentPage} activeIndex={activeCol} isFocused={activeRow >= Math.ceil(currentMovies.length/gridColumns)} onPageChange={onPageChange} />
+            <Pagination totalItems={movies.length} itemsPerPage={ITEMS_PER_PAGE} currentPage={currentPage} activeIndex={activeCol} isFocused={activeRow >= Math.ceil(currentMovies.length / gridColumns)} onPageChange={onPageChange} />
           ) : (
-             <div className="mt-[4vw] pb-[6vw] h-[4.7vw]" />
+            <div className="mt-[4vw] pb-[6vw] h-[4.7vw]" />
           )}
         </div>
       </div>
@@ -1570,23 +1606,23 @@ const SearchScreen = ({ searchQuery, setSearchQuery, searchResults, activeRow, a
           className="w-full h-full bg-transparent text-[1.8vw] text-white outline-none placeholder-zinc-500"
         />
       </div>
-      <div className="w-full px-[4vw] flex-1 overflow-y-auto pb-[4vw] pt-[0.5vw]"> 
-         {searchResults.length > 0 ? (
-            <div className="grid grid-cols-4 gap-[2vw]">
-               {searchResults.map((movie, index) => {
-                   const rowIndex = Math.floor(index / gridColumns);
-                   const colIndex = index % gridColumns;
-                   const isFocused = activeRow === rowIndex && activeCol === colIndex;
-                   return (
-                     <GridMovieCard key={movie.id} movie={movie} isFocused={isFocused} onClick={onMovieClick} innerRef={el => { if(!rowRefMap.current[rowIndex]) rowRefMap.current[rowIndex] = []; rowRefMap.current[rowIndex][colIndex] = el; }} />
-                   );
-               })}
-            </div>
-         ) : (
-            <div className="text-center text-zinc-500 text-[1.5vw] mt-[0vw]">
-               {searchQuery ? 'ไม่พบผลลัพธ์' : 'เริ่มพิมพ์เพื่อค้นหา ภาพยนตร์/ซีรีส์ ที่คุณต้องการ'}
-            </div>
-         )}
+      <div className="w-full px-[4vw] flex-1 overflow-y-auto pb-[4vw] pt-[0.5vw]">
+        {searchResults.length > 0 ? (
+          <div className="grid grid-cols-4 gap-[2vw]">
+            {searchResults.map((movie, index) => {
+              const rowIndex = Math.floor(index / gridColumns);
+              const colIndex = index % gridColumns;
+              const isFocused = activeRow === rowIndex && activeCol === colIndex;
+              return (
+                <GridMovieCard key={movie.id} movie={movie} isFocused={isFocused} onClick={onMovieClick} innerRef={el => { if (!rowRefMap.current[rowIndex]) rowRefMap.current[rowIndex] = []; rowRefMap.current[rowIndex][colIndex] = el; }} />
+              );
+            })}
+          </div>
+        ) : (
+          <div className="text-center text-zinc-500 text-[1.5vw] mt-[0vw]">
+            {searchQuery ? 'ไม่พบผลลัพธ์' : 'เริ่มพิมพ์เพื่อค้นหา ภาพยนตร์/ซีรีส์ ที่คุณต้องการ'}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -1605,16 +1641,16 @@ const AccountScreen = () => (
 export default function App() {
   const [activeRow, setActiveRow] = useState(-1);
   const [activeCol, setActiveCol] = useState(0);
-  const [lastActiveRow, setLastActiveRow] = useState(-1); 
-  const [lastActiveCol, setLastActiveCol] = useState(0); 
+  const [lastActiveRow, setLastActiveRow] = useState(-1);
+  const [lastActiveCol, setLastActiveCol] = useState(0);
   const [selectedMovie, setSelectedMovie] = useState(null);
-  const [activeTab, setActiveTab] = useState('home'); 
+  const [activeTab, setActiveTab] = useState('home');
   const [currentFilter, setCurrentFilter] = useState('ทั้งหมด');
-  const [gridPage, setGridPage] = useState(1); 
+  const [gridPage, setGridPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const [allMovies, setAllMovies] = useState([]); // Empty init
   const [heroMovie, setHeroMovie] = useState(FEATURED_MOVIE);
-  
+
   const rowRefMap = useRef({});
   const lastInputTime = useRef(0);
   const APP_STATE_KEY = 'moviifox_app_state_v1';
@@ -1640,32 +1676,32 @@ export default function App() {
 
   useEffect(() => {
     fetch(`${SUPABASE_URL}/rest/v1/movies?select=*`, {
-       headers: {
-          'apikey': SUPABASE_KEY,
-          'Authorization': `Bearer ${SUPABASE_KEY}` 
-       }
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`
+      }
     })
       .then(response => {
         if (!response.ok) throw new Error("Network response was not ok");
         return response.json();
       })
       .then(data => {
-         const movies = transformSupabaseData(data);
-         if(movies.length > 0) {
-            setAllMovies(movies);
-            
-            // Random Hero Logic
-            const heroCandidates = movies.filter(m => m.category && m.category.toLowerCase().includes('hero'));
-            if (heroCandidates.length > 0) {
-                const randomHero = heroCandidates[Math.floor(Math.random() * heroCandidates.length)];
-                setHeroMovie(randomHero);
-            } else if (movies.length > 0) {
-                setHeroMovie(movies[0]);
-            }
-         }
+        const movies = transformSupabaseData(data);
+        if (movies.length > 0) {
+          setAllMovies(movies);
+
+          // Random Hero Logic
+          const heroCandidates = movies.filter(m => m.category && m.category.toLowerCase().includes('hero'));
+          if (heroCandidates.length > 0) {
+            const randomHero = heroCandidates[Math.floor(Math.random() * heroCandidates.length)];
+            setHeroMovie(randomHero);
+          } else if (movies.length > 0) {
+            setHeroMovie(movies[0]);
+          }
+        }
       })
       .catch(err => {
-         console.warn("Supabase load failed.", err);
+        console.warn("Supabase load failed.", err);
       });
   }, []);
 
@@ -1678,7 +1714,7 @@ export default function App() {
       } else if (activeRow !== -2) {
         window.history.pushState({ focus: true }, '');
       }
-    } catch {}
+    } catch { }
   }, [selectedMovie, activeRow]);
 
   // Global popstate handler: close modal if open, else move focus back to navbar
@@ -1713,7 +1749,7 @@ export default function App() {
     try {
       const s = sessionStorage.getItem(APP_STATE_KEY);
       if (s) pendingRestore.current = JSON.parse(s);
-    } catch {}
+    } catch { }
   }, []);
 
   useEffect(() => {
@@ -1733,7 +1769,7 @@ export default function App() {
           const found = allMovies.find(m => String(m.id) === String(s.selectedMovieId));
           if (found) setSelectedMovie(found);
         }
-      } catch {}
+      } catch { }
       pendingRestore.current = null;
     }
   }, [allMovies]);
@@ -1750,7 +1786,7 @@ export default function App() {
       searchQuery,
       selectedMovieId: selectedMovie?.id || null,
     };
-    try { sessionStorage.setItem(APP_STATE_KEY, JSON.stringify(snapshot)); } catch {}
+    try { sessionStorage.setItem(APP_STATE_KEY, JSON.stringify(snapshot)); } catch { }
   }, [activeTab, currentFilter, gridPage, activeRow, activeCol, lastActiveRow, lastActiveCol, searchQuery, selectedMovie]);
 
 
@@ -1758,13 +1794,13 @@ export default function App() {
     const previousTab = previousActiveTab.current;
 
     if (['y_content', 'k_content', 'festival'].includes(activeTab)) {
-        setActiveRow(-1);
-        window.scrollTo(0, 0);
-        setTimeout(() => window.scrollTo(0, 0), 50);
+      setActiveRow(-1);
+      window.scrollTo(0, 0);
+      setTimeout(() => window.scrollTo(0, 0), 50);
     }
 
     if (activeTab === 'search' && previousTab !== 'search') {
-        setActiveRow(-1);
+      setActiveRow(-1);
     }
 
     previousActiveTab.current = activeTab;
@@ -1779,8 +1815,8 @@ export default function App() {
   const searchResults = useMemo(() => {
     if (!searchQuery) return [];
     const query = searchQuery.toLowerCase();
-    return allMovies.filter(m => 
-      (m.title && m.title.toLowerCase().includes(query)) || 
+    return allMovies.filter(m =>
+      (m.title && m.title.toLowerCase().includes(query)) ||
       (m.title_alt && m.title_alt.toLowerCase().includes(query))
     );
   }, [searchQuery, allMovies]);
@@ -1788,29 +1824,29 @@ export default function App() {
 
   const isGridMode = ['movies', 'y_content', 'k_content', 'festival', 'brand_netflix', 'brand_disney', 'brand_hbo', 'brand_marvel'].includes(activeTab);
   const isSearchMode = activeTab === 'search';
-  
+
   const gridMovies = useMemo(() => {
-      if (isSearchMode) return searchResults;
-      if(!isGridMode) return [];
-      if (activeTab === 'movies') {
-          if (currentFilter === 'ภาพยนตร์') return categories.filter(m => m.category && m.category.includes('movie'));
-          if (currentFilter === 'ซีรีส์') return categories.filter(m => m.category && m.category.includes('series'));
-      }
-      if (activeTab === 'festival') {
-        return allMovies.filter(m => String(m.tags || m.tag || '').toLowerCase().includes('halloween'));//แก้ตัวกรองหน้า festival ตรงนี้
-      }
-      // Brand pages filter by tags on allMovies
-      const tagMap = {
-        brand_netflix: 'netflix',
-        brand_disney: 'disney',
-        brand_hbo: 'hbo',
-        brand_marvel: 'marvel'
-      };
-      if (activeTab in tagMap) {
-        const tag = tagMap[activeTab];
-        return allMovies.filter(m => String(m.tags || m.tag || '').toLowerCase().includes(tag));
-      }
-      return categories;
+    if (isSearchMode) return searchResults;
+    if (!isGridMode) return [];
+    if (activeTab === 'movies') {
+      if (currentFilter === 'ภาพยนตร์') return categories.filter(m => m.category && m.category.includes('movie'));
+      if (currentFilter === 'ซีรีส์') return categories.filter(m => m.category && m.category.includes('series'));
+    }
+    if (activeTab === 'festival') {
+      return allMovies.filter(m => String(m.tags || m.tag || '').toLowerCase().includes('halloween'));//แก้ตัวกรองหน้า festival ตรงนี้
+    }
+    // Brand pages filter by tags on allMovies
+    const tagMap = {
+      brand_netflix: 'netflix',
+      brand_disney: 'disney',
+      brand_hbo: 'hbo',
+      brand_marvel: 'marvel'
+    };
+    if (activeTab in tagMap) {
+      const tag = tagMap[activeTab];
+      return allMovies.filter(m => String(m.tags || m.tag || '').toLowerCase().includes(tag));
+    }
+    return categories;
   }, [isGridMode, isSearchMode, categories, currentFilter, activeTab, searchResults, allMovies]);
 
 
@@ -1855,74 +1891,74 @@ export default function App() {
 
 
   const handleViewMore = (categoryTitle) => {
-      rowRefMap.current = {};
-      let targetTab = 'movies';
-      let targetFilter = 'ทั้งหมด';
-      let startRow = 0; 
+    rowRefMap.current = {};
+    let targetTab = 'movies';
+    let targetFilter = 'ทั้งหมด';
+    let startRow = 0;
 
 
-      if (categoryTitle === 'ภาพยนตร์ล่าสุด') {
-          targetTab = 'movies';
-          targetFilter = 'ภาพยนตร์';
-          startRow = 0; 
-      } else if (categoryTitle === 'ซีรีส์ล่าสุด') {
-          targetTab = 'movies';
-          targetFilter = 'ซีรีส์';
-          startRow = 0;
-      } else if (categoryTitle === 'สายวายต้องฟิน') {
-          targetTab = 'y_content';
-          startRow = -1; 
-      } else if (categoryTitle === 'เอาใจสายเกา') {
-          targetTab = 'k_content';
-          startRow = -1; 
+    if (categoryTitle === 'ภาพยนตร์ล่าสุด') {
+      targetTab = 'movies';
+      targetFilter = 'ภาพยนตร์';
+      startRow = 0;
+    } else if (categoryTitle === 'ซีรีส์ล่าสุด') {
+      targetTab = 'movies';
+      targetFilter = 'ซีรีส์';
+      startRow = 0;
+    } else if (categoryTitle === 'สายวายต้องฟิน') {
+      targetTab = 'y_content';
+      startRow = -1;
+    } else if (categoryTitle === 'เอาใจสายเกา') {
+      targetTab = 'k_content';
+      startRow = -1;
+    }
+
+
+    setActiveTab(targetTab);
+    setCurrentFilter(targetFilter);
+    setLastActiveRow(-1);
+    setGridPage(1);
+    // Stabilize layout before focusing grid
+    try { window.scrollTo({ top: 0, behavior: 'auto' }); } catch { }
+
+    setTimeout(() => {
+      setActiveRow(startRow);
+      setActiveCol(0);
+      if (startRow === -1) {
+        window.scrollTo(0, 0);
       }
-
-
-      setActiveTab(targetTab);
-      setCurrentFilter(targetFilter);
-      setLastActiveRow(-1);
-      setGridPage(1);
-      // Stabilize layout before focusing grid
-      try { window.scrollTo({ top: 0, behavior: 'auto' }); } catch {}
-
-      setTimeout(() => {
-         setActiveRow(startRow); 
-         setActiveCol(0);
-         if (startRow === -1) {
-            window.scrollTo(0, 0);
-         }
-         // Extra: explicitly center the first card after focus is set
-         let tries = 0;
-         const max = 30;
-         const center = () => {
-           const el = rowRefMap.current[startRow]?.[0];
-           if (el) {
-             try { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
-             catch {
-               try {
-                 const rect = el.getBoundingClientRect();
-                 const top = rect.top + window.scrollY;
-                 const off = window.innerHeight / 2 - (rect.height / 2);
-                 window.scrollTo({ top: top - off, behavior: 'smooth' });
-               } catch {}
-             }
-           } else if (tries < max) {
-             tries += 1;
-             setTimeout(center, 50);
-           }
-         };
-         setTimeout(center, 120);
-      }, 160); 
+      // Extra: explicitly center the first card after focus is set
+      let tries = 0;
+      const max = 30;
+      const center = () => {
+        const el = rowRefMap.current[startRow]?.[0];
+        if (el) {
+          try { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+          catch {
+            try {
+              const rect = el.getBoundingClientRect();
+              const top = rect.top + window.scrollY;
+              const off = window.innerHeight / 2 - (rect.height / 2);
+              window.scrollTo({ top: top - off, behavior: 'smooth' });
+            } catch { }
+          }
+        } else if (tries < max) {
+          tries += 1;
+          setTimeout(center, 50);
+        }
+      };
+      setTimeout(center, 120);
+    }, 160);
   };
 
 
   const handleFilterSelect = (filterName) => {
-      rowRefMap.current = {};
-      setCurrentFilter(filterName);
-      setGridPage(1);
-      setActiveRow(0);
-      setActiveCol(0);
-      setLastActiveRow(-1);
+    rowRefMap.current = {};
+    setCurrentFilter(filterName);
+    setGridPage(1);
+    setActiveRow(0);
+    setActiveCol(0);
+    setLastActiveRow(-1);
   };
 
 
@@ -1970,8 +2006,8 @@ export default function App() {
 
 
       const {
-        activeRow: currentActiveRow, activeCol: currentActiveCol, lastActiveRow, lastActiveCol, selectedMovie: currentSelectedMovie, activeTab, 
-        categories, isGridMode: currentIsGridMode, isSearchMode, gridMovies, gridColumns, currentGridRows, 
+        activeRow: currentActiveRow, activeCol: currentActiveCol, lastActiveRow, lastActiveCol, selectedMovie: currentSelectedMovie, activeTab,
+        categories, isGridMode: currentIsGridMode, isSearchMode, gridMovies, gridColumns, currentGridRows,
         NAV_ITEMS, currentFilter, gridPage, paginationItems, currentMoviesOnPage
       } = stateRef.current;
 
@@ -1981,16 +2017,16 @@ export default function App() {
 
       switch (e.key) {
         case 'ArrowUp':
-          if (currentActiveRow === -1) { 
-            setActiveRow(-2); 
+          if (currentActiveRow === -1) {
+            setActiveRow(-2);
             const activeIdx = NAV_ITEMS.findIndex(item => item.id === activeTab);
             let newCol = 0;
             if (newCol === activeIdx) newCol = 1;
-            setActiveCol(newCol); setLastActiveRow(-1); 
+            setActiveCol(newCol); setLastActiveRow(-1);
           } else if (currentActiveRow === -2) {
           } else {
-            setActiveRow(prev => prev - 1); 
-            if(!currentIsGridMode && !isSearchMode) setActiveCol(0);
+            setActiveRow(prev => prev - 1);
+            if (!currentIsGridMode && !isSearchMode) setActiveCol(0);
           }
           break;
         case 'ArrowDown':
@@ -2035,129 +2071,129 @@ export default function App() {
           break;
         case 'ArrowLeft':
           if (currentActiveRow === -2) {
-               const activeIdx = NAV_ITEMS.findIndex(item => item.id === activeTab);
-               let target = currentActiveCol - 1;
-               if (target === activeIdx) target--; 
-               if (target >= 0) setActiveCol(target);
+            const activeIdx = NAV_ITEMS.findIndex(item => item.id === activeTab);
+            let target = currentActiveCol - 1;
+            if (target === activeIdx) target--;
+            if (target >= 0) setActiveCol(target);
           } else if (currentIsGridMode && currentActiveRow === currentGridRows) {
-               let target = currentActiveCol - 1;
-               if (target >= 0 && paginationItems[target].active) target--;
-               if (target >= 0) setActiveCol(target);
+            let target = currentActiveCol - 1;
+            if (target >= 0 && paginationItems[target].active) target--;
+            if (target >= 0) setActiveCol(target);
           } else {
-               setActiveCol(prev => Math.max(0, prev - 1));
+            setActiveCol(prev => Math.max(0, prev - 1));
           }
           break;
         case 'ArrowRight':
-           if (currentActiveRow === -2) {
-             const activeIdx = NAV_ITEMS.findIndex(item => item.id === activeTab);
-             let target = currentActiveCol + 1;
-             if (target === activeIdx) target++;
-             if (target < NAV_ITEMS.length) setActiveCol(target);
-           } else if (currentIsGridMode || isSearchMode) {
-             if (currentActiveRow === -1) { 
-                if (currentIsGridMode) setActiveCol(prev => Math.min(2, prev + 1));
-             } else if (currentActiveRow === 0 && !currentIsGridMode && !isSearchMode) { 
-                setActiveCol(prev => Math.min(3, prev + 1)); 
-             } else if (currentIsGridMode && currentActiveRow === currentGridRows) { 
-                let target = currentActiveCol + 1;
-                if (target < paginationItems.length && paginationItems[target].active) target++;
-                if (target < paginationItems.length) setActiveCol(target);
-             } else { 
-                const isLastRow = currentActiveRow === currentGridRows - 1;
-                const itemsInLastRow = currentMoviesOnPage.length % gridColumns || gridColumns;
-                const maxCol = isLastRow ? itemsInLastRow - 1 : gridColumns - 1;
-                setActiveCol(prev => Math.min(maxCol, prev + 1));
-             }
-           } else {
-             if (currentActiveRow === -1) setActiveCol(prev => Math.min(1, prev + 1));
-             else if (currentActiveRow === 0) setActiveCol(prev => Math.min(3, prev + 1));
-             else {
-                 const catIdx = currentActiveRow - 1;
-                 const maxCol = Math.min(categories[catIdx].items.length, 5); 
-                 setActiveCol(prev => Math.min(maxCol, prev + 1));
-             }
-           }
-           break;
+          if (currentActiveRow === -2) {
+            const activeIdx = NAV_ITEMS.findIndex(item => item.id === activeTab);
+            let target = currentActiveCol + 1;
+            if (target === activeIdx) target++;
+            if (target < NAV_ITEMS.length) setActiveCol(target);
+          } else if (currentIsGridMode || isSearchMode) {
+            if (currentActiveRow === -1) {
+              if (currentIsGridMode) setActiveCol(prev => Math.min(2, prev + 1));
+            } else if (currentActiveRow === 0 && !currentIsGridMode && !isSearchMode) {
+              setActiveCol(prev => Math.min(3, prev + 1));
+            } else if (currentIsGridMode && currentActiveRow === currentGridRows) {
+              let target = currentActiveCol + 1;
+              if (target < paginationItems.length && paginationItems[target].active) target++;
+              if (target < paginationItems.length) setActiveCol(target);
+            } else {
+              const isLastRow = currentActiveRow === currentGridRows - 1;
+              const itemsInLastRow = currentMoviesOnPage.length % gridColumns || gridColumns;
+              const maxCol = isLastRow ? itemsInLastRow - 1 : gridColumns - 1;
+              setActiveCol(prev => Math.min(maxCol, prev + 1));
+            }
+          } else {
+            if (currentActiveRow === -1) setActiveCol(prev => Math.min(1, prev + 1));
+            else if (currentActiveRow === 0) setActiveCol(prev => Math.min(3, prev + 1));
+            else {
+              const catIdx = currentActiveRow - 1;
+              const maxCol = Math.min(categories[catIdx].items.length, 5);
+              setActiveCol(prev => Math.min(maxCol, prev + 1));
+            }
+          }
+          break;
         case 'Enter':
           if (currentActiveRow === -2) {
-             const selectedTab = NAV_ITEMS[currentActiveCol].id;
-             if (activeTab !== selectedTab) { 
-               handleNavbarSelect(selectedTab);
-             }
+            const selectedTab = NAV_ITEMS[currentActiveCol].id;
+            if (activeTab !== selectedTab) {
+              handleNavbarSelect(selectedTab);
+            }
           } else if (currentIsGridMode && currentActiveRow === -1) {
-             const filters = ['ทั้งหมด', 'ภาพยนตร์', 'ซีรีส์'];
-             if (filters[currentActiveCol]) { 
-                 handleFilterSelect(filters[currentActiveCol]);
-             }
+            const filters = ['ทั้งหมด', 'ภาพยนตร์', 'ซีรีส์'];
+            if (filters[currentActiveCol]) {
+              handleFilterSelect(filters[currentActiveCol]);
+            }
           } else if (currentIsGridMode && currentActiveRow === currentGridRows) {
-             const item = paginationItems[currentActiveCol];
-             if (item) {
-                 let newPage = gridPage;
-                 if (item.type === 'page') newPage = item.page;
-                 else if (item.type === 'prev') newPage = Math.max(1, gridPage - 1);
-                 else if (item.type === 'next') newPage = Math.min(stateRef.current.totalPages || totalPages, gridPage + 1);
-                 if (newPage !== gridPage) { setGridPage(newPage); setActiveRow(0); setActiveCol(0); rowRefMap.current = {}; }
-             }
+            const item = paginationItems[currentActiveCol];
+            if (item) {
+              let newPage = gridPage;
+              if (item.type === 'page') newPage = item.page;
+              else if (item.type === 'prev') newPage = Math.max(1, gridPage - 1);
+              else if (item.type === 'next') newPage = Math.min(stateRef.current.totalPages || totalPages, gridPage + 1);
+              if (newPage !== gridPage) { setGridPage(newPage); setActiveRow(0); setActiveCol(0); rowRefMap.current = {}; }
+            }
           } else {
-             if (currentIsGridMode || isSearchMode) {
-               if (currentActiveRow >= 0 && currentActiveRow < currentGridRows) {
-                 const movieIndex = currentActiveRow * gridColumns + currentActiveCol;
-                 if (currentMoviesOnPage[movieIndex]) setSelectedMovie(currentMoviesOnPage[movieIndex]);
-               }
-             } else {
-               if (currentActiveRow === -1) { 
-                 if (currentActiveCol === 0) {
-                   if (Date.now() < actionSuppressUntil.current) break;
-                   const hm = stateRef.current.heroMovie;
-                   if (hm && hm.id && hm.id !== 'loading') setSelectedMovie(hm);
-                 }
-               } 
-               else if (currentActiveRow === 0) {
-                 // BrandRow selection
-                 const col = currentActiveCol;
-                 const map = {
-                   0: 'brand_netflix',
-                   1: 'brand_disney',
-                   2: 'brand_hbo',
-                   3: 'brand_marvel'
-                 };
-                 if (col in map) {
-                   rowRefMap.current = {};
-                   setActiveTab(map[col]);
-                   setGridPage(1);
-                   setActiveRow(-1);
-                   setActiveCol(0);
-                   try { window.scrollTo({ top: 0, behavior: 'auto' }); } catch {}
-                 }
-               }
-               else {
-                   const catIdx = currentActiveRow - 1;
-                   const limited = categories[catIdx].items.slice(0, 5);
-                   if (currentActiveCol < limited.length) setSelectedMovie(limited[currentActiveCol]);
-                   else if (currentActiveCol === limited.length) handleViewMore(categories[catIdx].title);
-               }
-             }
+            if (currentIsGridMode || isSearchMode) {
+              if (currentActiveRow >= 0 && currentActiveRow < currentGridRows) {
+                const movieIndex = currentActiveRow * gridColumns + currentActiveCol;
+                if (currentMoviesOnPage[movieIndex]) setSelectedMovie(currentMoviesOnPage[movieIndex]);
+              }
+            } else {
+              if (currentActiveRow === -1) {
+                if (currentActiveCol === 0) {
+                  if (Date.now() < actionSuppressUntil.current) break;
+                  const hm = stateRef.current.heroMovie;
+                  if (hm && hm.id && hm.id !== 'loading') setSelectedMovie(hm);
+                }
+              }
+              else if (currentActiveRow === 0) {
+                // BrandRow selection
+                const col = currentActiveCol;
+                const map = {
+                  0: 'brand_netflix',
+                  1: 'brand_disney',
+                  2: 'brand_hbo',
+                  3: 'brand_marvel'
+                };
+                if (col in map) {
+                  rowRefMap.current = {};
+                  setActiveTab(map[col]);
+                  setGridPage(1);
+                  setActiveRow(-1);
+                  setActiveCol(0);
+                  try { window.scrollTo({ top: 0, behavior: 'auto' }); } catch { }
+                }
+              }
+              else {
+                const catIdx = currentActiveRow - 1;
+                const limited = categories[catIdx].items.slice(0, 5);
+                if (currentActiveCol < limited.length) setSelectedMovie(limited[currentActiveCol]);
+                else if (currentActiveCol === limited.length) handleViewMore(categories[catIdx].title);
+              }
+            }
           }
           break;
         case 'Backspace':
         case 'Escape':
-           if (currentActiveRow !== -2) {
-             const activeIdx = NAV_ITEMS.findIndex(item => item.id === activeTab);
-             let target = 0;
-             if (target === activeIdx) target = 1;
-             setLastActiveRow(currentActiveRow);
-             setLastActiveCol(currentActiveCol); // Save col
-             setActiveRow(-2);
-             setActiveCol(target);
-           }
-           break;
+          if (currentActiveRow !== -2) {
+            const activeIdx = NAV_ITEMS.findIndex(item => item.id === activeTab);
+            let target = 0;
+            if (target === activeIdx) target = 1;
+            setLastActiveRow(currentActiveRow);
+            setLastActiveCol(currentActiveCol); // Save col
+            setActiveRow(-2);
+            setActiveCol(target);
+          }
+          break;
       }
     };
     window.addEventListener('keydown', handleKeyDown, { passive: false });
     // Tizen hardware back event
     const handleTizenHwKey = (ev) => {
       if (ev && ev.keyName === 'back') {
-        try { ev.preventDefault?.(); } catch {}
+        try { ev.preventDefault?.(); } catch { }
         const {
           activeRow: currentActiveRow, activeCol: currentActiveCol, activeTab,
           lastActiveRow, lastActiveCol, NAV_ITEMS
@@ -2180,27 +2216,39 @@ export default function App() {
   }, []);
 
   // Disable mouse/touch interactions globally (remote-only)
+  const prevActiveRowRef = useRef(activeRow);
+  const prevActiveTabRef = useRef(activeTab);
+
   useEffect(() => {
+    const prevRow = prevActiveRowRef.current;
+    const prevTab = prevActiveTabRef.current;
+    prevActiveRowRef.current = activeRow;
+    prevActiveTabRef.current = activeTab;
+
     clearScrollTimeouts();
 
+    // Save scroll position whenever we're NOT on Navbar
     if (activeRow !== -2) {
-      try { lastScrollTopRef.current = window.scrollY || 0; } catch {}
+      try { lastScrollTopRef.current = window.scrollY || 0; } catch { }
     }
 
+    // ── Navbar focus: do NOT scroll at all ──
     if (activeRow === -2) {
-      const restore = () => {
-        try { window.scrollTo({ top: lastScrollTopRef.current, behavior: 'auto' }); } catch {}
-      };
-      registerScrollTimeout(restore, 30);
-      registerScrollTimeout(restore, 160);
       return clearScrollTimeouts;
     }
 
+    // ── Coming BACK from Navbar to the SAME tab: do NOT scroll ──
+    if (prevRow === -2 && activeTab === prevTab) {
+      return clearScrollTimeouts;
+    }
+
+    // ── Hero focus: scroll to top ──
     if (activeRow === -1) {
-      try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch {}
+      try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch { }
       return;
     }
 
+    // ── Content rows: scroll focused card into view ──
     if (activeRow >= 0) {
       let attempts = 0;
       const maxAttempts = 30;
@@ -2221,7 +2269,7 @@ export default function App() {
               const absoluteElementTop = elementRect.top + window.scrollY;
               const offset = window.innerHeight / 2 - (elementRect.height / 2);
               window.scrollTo({ top: absoluteElementTop - offset, behavior: 'smooth' });
-            } catch {}
+            } catch { }
           }
         } else if (attempts < maxAttempts) {
           attempts += 1;
@@ -2238,47 +2286,47 @@ export default function App() {
 
   const renderContent = () => {
     if (activeTab === 'search') {
-       return (
-         <SearchScreen 
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            searchResults={searchResults}
-            activeRow={activeRow}
-            activeCol={activeCol}
-            onMovieClick={setSelectedMovie}
-            rowRefMap={rowRefMap}
-         />
-       );
+      return (
+        <SearchScreen
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          searchResults={searchResults}
+          activeRow={activeRow}
+          activeCol={activeCol}
+          onMovieClick={setSelectedMovie}
+          rowRefMap={rowRefMap}
+        />
+      );
     }
     if (activeTab === 'account') return <AccountScreen />;
     if (isGridMode) {
       let pageTitle = 'ภาพยนตร์/ซีรีส์';
       let pageSubtitle = 'Movies/Series';
       let showFilters = true;
-      let titleStyle = { fontSize: '3.5vw', color: 'white', fontFamily: 'Foxgraphie, sans-serif' }; 
+      let titleStyle = { fontSize: '3.5vw', color: 'white', fontFamily: 'Foxgraphie, sans-serif' };
       let coverImage = 'http://moviifox.x10.mx/aset/netflixpage.webp';
 
 
-      if (activeTab === 'y_content') { 
-        pageTitle = 'สายวายต้องฟิน'; 
+      if (activeTab === 'y_content') {
+        pageTitle = 'สายวายต้องฟิน';
         pageSubtitle = 'Boy love/Yaoi';
-        showFilters = false; 
+        showFilters = false;
         coverImage = 'http://moviifox.x10.mx/aset/ypage.webp';
-      } 
-      else if (activeTab === 'k_content') { 
-        pageTitle = 'เอาใจสายเกา'; 
+      }
+      else if (activeTab === 'k_content') {
+        pageTitle = 'เอาใจสายเกา';
         pageSubtitle = 'Korean movies/series';
-        showFilters = false; 
+        showFilters = false;
         coverImage = 'http://moviifox.x10.mx/aset/koreapage.webp';
       }
-      else if (activeTab === 'festival') { 
+      else if (activeTab === 'festival') {
         pageTitle = 'ฮาโลวีน'; //แก้ชื่อหน้า festival ตรงนี้
         pageSubtitle = 'Halloween';
-        showFilters = false; 
+        showFilters = false;
         titleStyle = {
-            fontSize: '3.5vw', 
-            color: 'white', 
-            fontFamily: 'Foxgraphie, sans-serif'
+          fontSize: '3.5vw',
+          color: 'white',
+          fontFamily: 'Foxgraphie, sans-serif'
         };
         coverImage = 'http://moviifox.x10.mx/aset/festivalpage.webp';//แก้รูปปกหน้า festival ตรงนี้
       }
@@ -2308,36 +2356,36 @@ export default function App() {
       }
 
 
-      return <GridPage 
-            movies={gridMovies} 
-            activeRow={activeRow} 
-            activeCol={activeCol} 
-            onMovieClick={setSelectedMovie} 
-            rowRefMap={rowRefMap} 
-            currentFilter={currentFilter} 
-            currentPage={gridPage} 
-            onPageChange={(p) => { setGridPage(p); setActiveRow(0); setActiveCol(0); rowRefMap.current = {}; }} 
-            gridColumns={gridColumns} 
-            paginationItems={paginationItems} 
-            pageTitle={pageTitle} 
-            pageSubtitle={pageSubtitle} 
-            showFilters={showFilters} 
-            titleStyle={titleStyle} 
-            onFilterChange={handleFilterSelect} 
-            coverImage={coverImage}
+      return <GridPage
+        movies={gridMovies}
+        activeRow={activeRow}
+        activeCol={activeCol}
+        onMovieClick={setSelectedMovie}
+        rowRefMap={rowRefMap}
+        currentFilter={currentFilter}
+        currentPage={gridPage}
+        onPageChange={(p) => { setGridPage(p); setActiveRow(0); setActiveCol(0); rowRefMap.current = {}; }}
+        gridColumns={gridColumns}
+        paginationItems={paginationItems}
+        pageTitle={pageTitle}
+        pageSubtitle={pageSubtitle}
+        showFilters={showFilters}
+        titleStyle={titleStyle}
+        onFilterChange={handleFilterSelect}
+        coverImage={coverImage}
       />;
     }
 
 
     return (
       <main className="relative z-10">
-        <Hero 
-          movie={heroMovie} 
-          isFocused={activeRow === -1} 
-          activeBtnIndex={activeCol} 
+        <Hero
+          movie={heroMovie}
+          isFocused={activeRow === -1}
+          activeBtnIndex={activeCol}
           isModalOpen={!!selectedMovie}
           isNavFocused={activeRow === -2}
-          onPlay={() => { if (Date.now() < actionSuppressUntil.current) return; setSelectedMovie(heroMovie); }} 
+          onPlay={() => { if (Date.now() < actionSuppressUntil.current) return; setSelectedMovie(heroMovie); }}
         />
         <div className="relative mt-[-2vw]">
           <BrandRow activeRow={activeRow} activeCol={activeCol} rowIndex={0} rowRefMap={rowRefMap} />
@@ -2355,14 +2403,14 @@ export default function App() {
   return (
     <div className="min-h-screen bg-black text-white font-sans overflow-x-hidden selection:bg-white selection:text-black">
       <Navbar isFocused={activeRow === -2} activeNavIndex={activeCol} activeTab={activeTab} onSelect={handleNavbarSelect} />
-      <div className="transition-all duration-300">
+      <div className={`transition-all duration-500 ${activeRow === -2 ? 'blur-sm' : 'blur-0'}`}>
         {renderContent()}
         {selectedMovie && <Modal movie={selectedMovie} onClose={() => setSelectedMovie(null)} />}
       </div>
       <style>{`
-        @font-face { font-family: 'Foxgraphie'; src: url('https://raw.githubusercontent.com/Moviifox/trailer/refs/heads/main/foxgraphie_light.otf'); font-weight: 300; }
-        @font-face { font-family: 'Foxgraphie'; src: url('https://raw.githubusercontent.com/Moviifox/trailer/refs/heads/main/foxgraphie_regular.otf'); font-weight: 400; }
-        @font-face { font-family: 'Foxgraphie'; src: url('https://raw.githubusercontent.com/Moviifox/trailer/refs/heads/main/foxgraphie_semibold.otf'); font-weight: 600; }
+        @font-face { font-family: 'Foxgraphie'; src: url('https://raw.githubusercontent.com/Moviifox/trailer/refs/heads/main/foxgraphie_light.otf'); font-weight: 300; font-display: swap; }
+        @font-face { font-family: 'Foxgraphie'; src: url('https://raw.githubusercontent.com/Moviifox/trailer/refs/heads/main/foxgraphie_regular.otf'); font-weight: 400; font-display: swap; }
+        @font-face { font-family: 'Foxgraphie'; src: url('https://raw.githubusercontent.com/Moviifox/trailer/refs/heads/main/foxgraphie_semibold.otf'); font-weight: 600; font-display: swap; }
         :root { --font-primary: 'Foxgraphie', sans-serif; }
         body { font-family: 'Foxgraphie', sans-serif !important; letter-spacing: 0.025em; cursor: none !important; }
         .font-sans { font-family: 'Foxgraphie', sans-serif !important; }
