@@ -2403,7 +2403,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-black text-white font-sans overflow-x-hidden selection:bg-white selection:text-black">
       <Navbar isFocused={activeRow === -2} activeNavIndex={activeCol} activeTab={activeTab} onSelect={handleNavbarSelect} />
-      <div className={`transition-all duration-500 ${activeRow === -2 ? 'blur-sm' : 'blur-0'}`}>
+      <div className="transition-all duration-300">
         {renderContent()}
         {selectedMovie && <Modal movie={selectedMovie} onClose={() => setSelectedMovie(null)} />}
       </div>
