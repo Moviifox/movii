@@ -889,7 +889,7 @@ const Row = React.memo(({ title, items, rowIndex, activeRow, activeCol, onMovieC
   const isActive = activeRow === rowIndex;
   const isNavFocused = activeRow === -2;
   return (
-    <div style={{ contentVisibility: 'auto', containIntrinsicSize: '0 500px' }} className={`py-[0.8vw] transition-all duration-700 ease-out relative ${isActive
+    <div className={`py-[0.8vw] transition-all duration-700 ease-out relative ${isActive
       ? 'opacity-100 scale-100 z-50'
       : isNavFocused
         ? 'opacity-60 scale-100 z-0'
@@ -2234,11 +2234,6 @@ export default function App() {
 
     // ── Navbar focus: do NOT scroll at all ──
     if (activeRow === -2) {
-      return clearScrollTimeouts;
-    }
-
-    // ── Coming BACK from Navbar to the SAME tab: do NOT scroll ──
-    if (prevRow === -2 && activeTab === prevTab) {
       return clearScrollTimeouts;
     }
 
