@@ -907,9 +907,379 @@ const Row = React.memo(({ title, items, rowIndex, activeRow, activeCol, onMovieC
 });
 
 
+// ==========================================
+// 🎬 BUILT-IN VIDEO PLAYER
+// ==========================================
+const VideoPlayer = React.memo(({ src, title, titleAlt, poster, onClose, disableResume, titlePrefix }) => {
+  const videoRef = useRef(null);
+  const containerRef = useRef(null);
+  const hideTimeoutRef = useRef(null);
+  const lastSavedRef = useRef(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTimeState] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [controlsVisible, setControlsVisible] = useState(true);
+  const [showPoster, setShowPoster] = useState(true);
+  const [showResume, setShowResume] = useState(false);
+  const [savedProgress, setSavedProgress] = useState(null);
+
+  const RESUME_KEY = `mf_resume_${title || 'unknown'}`;
+
+  const displayTitle = titlePrefix ? `${titlePrefix} ${title || ''}` : (title || '');
+
+  const formatTime = useCallback((seconds) => {
+    if (!seconds || isNaN(seconds)) return '00:00:00';
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = Math.floor(seconds % 60);
+    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  }, []);
+
+  const showControls = useCallback(() => {
+    setControlsVisible(true);
+    if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
+    hideTimeoutRef.current = setTimeout(() => {
+      const v = videoRef.current;
+      if (v && !v.paused) setControlsVisible(false);
+    }, 3000);
+  }, []);
+
+  const saveProgress = useCallback((force = false) => {
+    const v = videoRef.current;
+    if (!v || !v.duration || isNaN(v.duration)) return;
+    const now = Date.now();
+    if (!force && now - lastSavedRef.current < 5000) return;
+    const nearEnd = v.duration - v.currentTime < 10;
+    if (v.currentTime > 5 && !nearEnd) {
+      try {
+        localStorage.setItem(RESUME_KEY, JSON.stringify({
+          time: Math.floor(v.currentTime),
+          duration: Math.floor(v.duration),
+          updatedAt: now
+        }));
+      } catch { }
+      lastSavedRef.current = now;
+    }
+  }, [RESUME_KEY]);
+
+  const clearProgress = useCallback(() => {
+    try { localStorage.removeItem(RESUME_KEY); } catch { }
+  }, [RESUME_KEY]);
+
+  const getSavedProgress = useCallback(() => {
+    try {
+      const raw = localStorage.getItem(RESUME_KEY);
+      if (!raw) return null;
+      const data = JSON.parse(raw);
+      if (typeof data.time === 'number' && typeof data.duration === 'number') return data;
+    } catch { }
+    return null;
+  }, [RESUME_KEY]);
+
+  // On mount: load metadata and check resume
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+
+    const onLoadedMetadata = () => {
+      setDuration(v.duration);
+      if (disableResume) {
+        // Trailer mode: always play from start, no resume
+        setShowResume(false);
+        setShowPoster(false);
+        try { v.play(); } catch { }
+        return;
+      }
+      const saved = getSavedProgress();
+      if (saved && saved.time > 10 && saved.time < (v.duration - 15)) {
+        setSavedProgress(saved);
+        setShowResume(true);
+        setShowPoster(false);
+        // Don't autoplay — wait for user decision
+      } else {
+        setShowResume(false);
+        setShowPoster(false);
+        // No saved progress — start playing immediately
+        try { v.play(); } catch { }
+      }
+    };
+
+    const onTimeUpdate = () => {
+      setCurrentTimeState(v.currentTime);
+      const percent = (v.currentTime / v.duration) * 100;
+      saveProgress(false);
+    };
+
+    const onPlay = () => {
+      setIsPlaying(true);
+      setShowPoster(false);
+      showControls();
+    };
+
+    const onPause = () => {
+      setIsPlaying(false);
+      setControlsVisible(true);
+      if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
+      saveProgress(true);
+    };
+
+    const onEnded = () => {
+      clearProgress();
+      setIsPlaying(false);
+      setControlsVisible(true);
+    };
+
+    v.addEventListener('loadedmetadata', onLoadedMetadata);
+    v.addEventListener('timeupdate', onTimeUpdate);
+    v.addEventListener('play', onPlay);
+    v.addEventListener('pause', onPause);
+    v.addEventListener('ended', onEnded);
+
+    return () => {
+      v.removeEventListener('loadedmetadata', onLoadedMetadata);
+      v.removeEventListener('timeupdate', onTimeUpdate);
+      v.removeEventListener('play', onPlay);
+      v.removeEventListener('pause', onPause);
+      v.removeEventListener('ended', onEnded);
+      saveProgress(true);
+    };
+  }, [src, getSavedProgress, saveProgress, clearProgress, showControls]);
+
+  // Save on window unload
+  useEffect(() => {
+    const onBeforeUnload = () => saveProgress(true);
+    window.addEventListener('beforeunload', onBeforeUnload);
+    return () => window.removeEventListener('beforeunload', onBeforeUnload);
+  }, [saveProgress]);
+
+  // Key navigation (TV remote compatible)
+  useEffect(() => {
+    const handleKey = (e) => {
+      const v = videoRef.current;
+      if (!v) return;
+
+      // If resume overlay is active
+      if (showResume) {
+        e.preventDefault();
+        if (e.key === 'Enter') {
+          // Continue from saved position
+          if (savedProgress && savedProgress.time) {
+            try { v.currentTime = Math.min(savedProgress.time, Math.max(0, v.duration - 1)); } catch { }
+          }
+          setShowResume(false);
+          setShowPoster(false);
+          try { v.play(); } catch { }
+          showControls();
+        } else if (e.key === 'ArrowLeft') {
+          // Restart
+          try { v.currentTime = 0; } catch { }
+          setShowResume(false);
+          setShowPoster(false);
+          try { v.play(); } catch { }
+          showControls();
+        }
+        return;
+      }
+
+      // Back / Close keys
+      const isTvBack = (e.key === 'Back' || e.key === 'GoBack' || e.key === 'BrowserBack');
+      const isTvBackCode = (e.keyCode === 10009 || e.keyCode === 461);
+      if (isTvBack || isTvBackCode || e.key === 'Escape' || e.key === 'Backspace') {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        try { v.pause(); } catch { }
+        saveProgress(true);
+        onClose();
+        return;
+      }
+
+      showControls();
+
+      switch (e.key) {
+        case 'ArrowLeft':
+          v.currentTime = Math.max(0, v.currentTime - 10);
+          break;
+        case 'ArrowRight':
+          v.currentTime = Math.min(v.duration || 0, v.currentTime + 10);
+          break;
+        case 'ArrowUp':
+          v.currentTime = Math.min(v.duration || 0, v.currentTime + 60);
+          break;
+        case 'ArrowDown':
+          // Just show controls
+          break;
+        case 'Enter':
+        case ' ':
+          e.preventDefault();
+          if (v.paused) {
+            try { v.play(); } catch { }
+          } else {
+            v.pause();
+          }
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKey, { capture: true });
+    return () => window.removeEventListener('keydown', handleKey, { capture: true });
+  }, [showResume, savedProgress, onClose, saveProgress, showControls]);
+
+  // Mouse move to show controls
+  useEffect(() => {
+    const onMove = () => showControls();
+    const container = containerRef.current;
+    if (container) container.addEventListener('mousemove', onMove);
+    return () => { if (container) container.removeEventListener('mousemove', onMove); };
+  }, [showControls]);
+
+  const handleResumeContinue = () => {
+    const v = videoRef.current;
+    if (!v) return;
+    setShowResume(false);
+    setShowPoster(false);
+    if (savedProgress && savedProgress.time) {
+      const targetTime = Math.min(savedProgress.time, Math.max(0, v.duration - 1));
+      // Seek first, then play once seeked to avoid buffering from 0
+      const onSeeked = () => {
+        v.removeEventListener('seeked', onSeeked);
+        try { v.play(); } catch { }
+        showControls();
+      };
+      v.addEventListener('seeked', onSeeked);
+      try { v.currentTime = targetTime; } catch { }
+    } else {
+      try { v.play(); } catch { }
+      showControls();
+    }
+  };
+
+  const handleResumeRestart = () => {
+    const v = videoRef.current;
+    try { v.currentTime = 0; } catch { }
+    setShowResume(false);
+    setShowPoster(false);
+    try { v.play(); } catch { }
+    showControls();
+  };
+
+  const handleProgressClick = (e) => {
+    const v = videoRef.current;
+    if (!v || !v.duration) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const clickPos = e.clientX - rect.left;
+    const percent = clickPos / rect.width;
+    v.currentTime = percent * v.duration;
+  };
+
+  const handlePlayPause = () => {
+    const v = videoRef.current;
+    if (!v) return;
+    if (v.paused) {
+      try { v.play(); } catch { }
+    } else {
+      v.pause();
+    }
+  };
+
+  const handleRewind = () => {
+    const v = videoRef.current;
+    if (v) v.currentTime = Math.max(0, v.currentTime - 10);
+    showControls();
+  };
+
+  const handleForward = () => {
+    const v = videoRef.current;
+    if (v) v.currentTime = Math.min(v.duration || 0, v.currentTime + 10);
+    showControls();
+  };
+
+  const handleForward60 = () => {
+    const v = videoRef.current;
+    if (v) v.currentTime = Math.min(v.duration || 0, v.currentTime + 60);
+    showControls();
+  };
+
+  const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
+
+  return (
+    <div ref={containerRef} className="mf-player-container">
+      {/* Video */}
+      <video
+        ref={videoRef}
+        src={src}
+        poster={poster || undefined}
+        className="mf-player-video"
+        playsInline
+        preload="metadata"
+      />
+
+      {/* Poster cover */}
+      {showPoster && poster && (
+        <div className="mf-player-poster-cover" />
+      )}
+
+      {/* Title bar */}
+      <div className="mf-player-titlebar" style={{ opacity: controlsVisible ? 1 : 0 }}>
+        <div className="mf-player-titlebox">
+          <h1 className="mf-player-h1">{displayTitle}</h1>
+          {titleAlt && <>&nbsp;&nbsp;&nbsp;<p className="mf-player-h1">|</p>&nbsp;&nbsp;&nbsp;</>}
+          {titleAlt && <h2 className="mf-player-h2">{titleAlt}</h2>}
+        </div>
+      </div>
+
+      {/* Controls */}
+      <div className="mf-player-controls" style={{ opacity: controlsVisible ? 1 : 0 }}>
+        <div className="mf-player-butcon">
+          <button className="mf-player-icon-button" onClick={handleRewind} title="Rewind 10s">
+            <i className="fas fa-backward"></i>
+          </button>
+          <button className="mf-player-icon-button" onClick={handlePlayPause} title={isPlaying ? 'Pause' : 'Play'}>
+            <i className={isPlaying ? 'fas fa-pause' : 'fas fa-play'}></i>
+          </button>
+          <button className="mf-player-icon-button" onClick={handleForward} title="Forward 10s">
+            <i className="fas fa-forward"></i>
+          </button>
+        </div>
+        <div className="mf-player-upplusbutton">
+          <button className="mf-player-icon-but" onClick={handleForward60} title="+60s">
+            <i className="fa-solid fa-circle-up"></i>
+          </button>
+          <span className="mf-player-plustime">+60s</span>
+        </div>
+        <div className="mf-player-progress-box">
+          <div className="mf-player-progress-bar" onClick={handleProgressClick}>
+            <div className="mf-player-progress" style={{ width: `${progressPercent}%` }} />
+          </div>
+        </div>
+        <div className="mf-player-time">
+          <span>{formatTime(currentTime)}</span> / <span>{formatTime(duration)}</span>
+        </div>
+      </div>
+
+      {/* Resume overlay */}
+      {showResume && (
+        <div className="mf-player-resume-overlay active">
+          <div className="mf-player-resume-panel">
+            <h3 className="mf-player-resume-title">ต้องการเล่นต่อจากตำแหน่งเดิมหรือเริ่มใหม่?</h3>
+            <p className="mf-player-resume-subtitle">
+              ตำแหน่งล่าสุด {formatTime(savedProgress?.time || 0)} ({duration > 0 ? Math.round(((savedProgress?.time || 0) / duration) * 100) : 0}%)
+            </p>
+            <div className="mf-player-resume-actions">
+              <button className="mf-player-resume-btn primary" onClick={handleResumeContinue} autoFocus>กด "Enter" เพื่อเล่นต่อ</button>
+              <button className="mf-player-resume-btn" onClick={handleResumeRestart}>กด "ลูกศรซ้าย" เพื่อเริ่มใหม่</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+});
+
+
 const Modal = ({ movie, onClose }) => {
   const [activeBtn, setActiveBtn] = useState(0);
   const [fullscreenSrc, setFullscreenSrc] = useState(null); // external content shown inside fullscreen overlay
+  const [isTrailer, setIsTrailer] = useState(false); // track if playing trailer
   const [showDescPopup, setShowDescPopup] = useState(false);
   const descRef = useRef(null);
   const [hasMoreDesc, setHasMoreDesc] = useState(false);
@@ -967,10 +1337,11 @@ const Modal = ({ movie, onClose }) => {
     }
   }, [fullscreenSrc, clearFullscreenFallback]);
 
-  const openFullscreen = (url) => {
+  const openFullscreen = (url, trailer = false) => {
     if (!url) return;
     try {
       const target = url.startsWith('//') ? `https:${url}` : url;
+      setIsTrailer(trailer);
       setFullscreenSrc(target);
     } catch { }
   };
@@ -1161,7 +1532,7 @@ const Modal = ({ movie, onClose }) => {
         } else if (!isSeries && activeBtn === 0 && movie?.movielink) {
           openFullscreen(movie.movielink);
         } else if (activeBtn === 1 && movie?.trailer) {
-          openFullscreen(movie.trailer);
+          openFullscreen(movie.trailer, true);
         }
       }
     };
@@ -1341,18 +1712,17 @@ const Modal = ({ movie, onClose }) => {
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-[3vw]">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-[50px] transition-all duration-500" onClick={() => (fullscreenSrc || showDescPopup) ? null : onClose()} />
 
-      {/* Fullscreen player overlay */}
+      {/* Built-in video player overlay */}
       {fullscreenSrc && (
         <div className="fixed inset-0 z-[140] bg-black">
-          <iframe
+          <VideoPlayer
             src={fullscreenSrc}
-            title="Video player"
-            className="w-full h-full"
-            ref={iframeRef}
-            tabIndex={0}
-            loading="lazy"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen; keyboard-map"
-            allowFullScreen
+            title={movie?.title || ''}
+            titleAlt={movie?.title_alt || ''}
+            poster={movie?.image || ''}
+            onClose={() => closeFullscreen(true)}
+            disableResume={isTrailer}
+            titlePrefix={isTrailer ? 'ตัวอย่าง : ' : ''}
           />
         </div>
       )}
@@ -1436,7 +1806,7 @@ const Modal = ({ movie, onClose }) => {
               </button>
               <button
                 className={`flex-1 py-[1.3vw] rounded-[2vw] font-semibold text-[1.4vw] transition-all duration-0 ${(activeBtn === 1 && epFocus === -1 && !focusMore && !focusClose) ? 'bg-white/10 text-white border-2 border-white/70 scale-105 shadow-[0_0_2vw_rgba(255,255,255,0.12)]' : 'bg-white/5 text-white hover:bg-white/10'}`}
-                onClick={() => movie?.trailer && openFullscreen(movie.trailer)}
+                onClick={() => movie?.trailer && openFullscreen(movie.trailer, true)}
               >
                 ดูตัวอย่าง
               </button>
@@ -1447,7 +1817,7 @@ const Modal = ({ movie, onClose }) => {
                 <div className="mb-[1.2vw]">
                   <button
                     className={`w-full py-[1.1vw] rounded-[2.2vw] font-semibold text-[1.6vw] transition-all duration-0 ${(activeBtn === 1 && epFocus === -1 && !focusMore && !focusClose) ? 'bg-white/10 text-white border-2 border-white/70 shadow-[0_0_2vw_rgba(255,255,255,0.12)]' : 'bg-white/5 text-white hover:bg-white/10'}`}
-                    onClick={() => openFullscreen(movie.trailer)}
+                    onClick={() => openFullscreen(movie.trailer, true)}
                   >
                     ดูตัวอย่าง
                   </button>
@@ -2429,6 +2799,237 @@ export default function App() {
         .animate-marquee {
           animation: marquee 8s linear infinite;
         }
+
+        /* ===== Built-in Video Player Styles ===== */
+        .mf-player-container {
+          position: relative;
+          width: 100%;
+          height: 100vh;
+          background: black;
+          overflow: hidden;
+        }
+        .mf-player-video {
+          width: 100%;
+          height: 100vh;
+          background: black;
+          object-fit: contain;
+        }
+        .mf-player-poster-cover {
+          position: absolute;
+          inset: 0;
+          background: transparent;
+          pointer-events: none;
+          z-index: 1;
+        }
+        .mf-player-titlebar {
+          position: absolute;
+          top: 5%;
+          left: 0;
+          right: 0;
+          display: flex;
+          text-align: center;
+          align-items: center;
+          justify-content: center;
+          background: transparent;
+          transition: opacity 0.3s;
+          z-index: 5;
+        }
+        .mf-player-titlebox {
+          display: flex;
+          text-align: center;
+          align-items: center;
+          justify-content: center;
+          background: rgba(0, 0, 0, 0.5);
+          border: 1px solid rgba(160, 160, 160, 0.1);
+          backdrop-filter: saturate(100%) blur(8px);
+          -webkit-backdrop-filter: saturate(100%) blur(8px);
+          padding: 10px 30px;
+          border-radius: 30px;
+        }
+        .mf-player-h1 {
+          font-size: 20px;
+          font-family: 'Foxgraphie', sans-serif;
+          font-weight: 600;
+          letter-spacing: 1px;
+          color: white;
+          margin: 0;
+          padding: 0;
+        }
+        .mf-player-h2 {
+          font-size: 18px;
+          font-family: 'Foxgraphie', sans-serif;
+          font-weight: 300;
+          letter-spacing: 2px;
+          color: white;
+          margin: 0;
+          padding: 0;
+        }
+        .mf-player-controls {
+          position: absolute;
+          bottom: 7%;
+          left: 15%;
+          right: 15%;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          background: rgba(0, 0, 0, 0.5);
+          border: 1px solid rgba(160, 160, 160, 0.1);
+          backdrop-filter: saturate(100%) blur(8px);
+          -webkit-backdrop-filter: saturate(100%) blur(8px);
+          padding: 23px 40px 23px 45px;
+          border-radius: 80px;
+          transition: opacity 0.3s;
+          z-index: 5;
+        }
+        .mf-player-butcon {
+          display: flex;
+          justify-content: space-between;
+          width: 105px;
+          flex-shrink: 0;
+        }
+        .mf-player-icon-button {
+          background: none;
+          border: none;
+          color: white;
+          font-size: 19px;
+          cursor: pointer;
+          margin: 0;
+          padding: 4px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .mf-player-icon-button:focus {
+          outline: none;
+        }
+        .mf-player-icon-but {
+          background: none;
+          border: none;
+          color: white;
+          font-size: 17px;
+          cursor: pointer;
+          margin: 0;
+          padding: 4px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .mf-player-icon-but:focus {
+          outline: none;
+        }
+        .mf-player-upplusbutton {
+          display: flex;
+          align-items: center;
+          margin: 0 0 0 5px;
+          flex-shrink: 0;
+        }
+        .mf-player-plustime {
+          font-family: 'Foxgraphie', sans-serif;
+          font-weight: 300;
+          letter-spacing: 2px;
+          font-size: 16px;
+          color: white;
+          padding: 0 0 3px 0;
+        }
+        .mf-player-progress-box {
+          flex: 1;
+          height: 10px;
+          border-radius: 10px;
+          margin: 0 15px 0 20px;
+          position: relative;
+        }
+        .mf-player-progress-bar {
+          flex: 1;
+          height: 10px;
+          background: gray;
+          border-radius: 10px;
+          cursor: pointer;
+          position: relative;
+          overflow: hidden;
+        }
+        .mf-player-progress {
+          height: 100%;
+          background: white;
+          width: 0%;
+          border-radius: 10px;
+          transition: width 0.1s linear;
+        }
+        .mf-player-time {
+          display: flex;
+          align-items: center;
+          font-size: 17px;
+          font-family: 'Foxgraphie', sans-serif;
+          font-weight: 400;
+          letter-spacing: 1px;
+          color: white;
+          gap: 5px;
+          flex-shrink: 0;
+        }
+        .mf-player-time span {
+          min-width: 65px;
+          text-align: center;
+        }
+        /* Resume overlay */
+        .mf-player-resume-overlay {
+          position: absolute;
+          inset: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: rgba(0, 0, 0, 0.6);
+          backdrop-filter: saturate(120%) blur(8px);
+          -webkit-backdrop-filter: saturate(120%) blur(8px);
+          z-index: 10;
+        }
+        .mf-player-resume-panel {
+          width: min(90%, 720px);
+          background: rgba(0, 0, 0, 0.5);
+          border: 1px solid rgba(160, 160, 160, 0.2);
+          border-radius: 24px;
+          padding: 28px;
+        }
+        .mf-player-resume-title {
+          margin: 0 0 8px 0;
+          font-family: 'Foxgraphie', sans-serif;
+          font-weight: 600;
+          font-size: 22px;
+          letter-spacing: 0.5px;
+          color: white;
+        }
+        .mf-player-resume-subtitle {
+          margin: 0 0 18px 0;
+          font-family: 'Foxgraphie', sans-serif;
+          font-weight: 300;
+          font-size: 16px;
+          letter-spacing: 1px;
+          opacity: 0.9;
+          color: white;
+        }
+        .mf-player-resume-actions {
+          display: flex;
+          gap: 12px;
+        }
+        .mf-player-resume-btn {
+          appearance: none;
+          border: 1px solid rgba(160, 160, 160, 0.2);
+          background: rgba(255, 255, 255, 0.06);
+          color: #fff;
+          font-family: 'Foxgraphie', sans-serif;
+          font-weight: 400;
+          font-size: 16px;
+          letter-spacing: 0.5px;
+          border-radius: 14px;
+          padding: 12px 18px;
+          cursor: pointer;
+        }
+        .mf-player-resume-btn.primary {
+          background: #ffffff;
+          color: #000000;
+        }
+        .mf-player-resume-btn:focus {
+          outline: none;
+        }
+
         /* Multi-line clamp without Tailwind plugin */
         .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
