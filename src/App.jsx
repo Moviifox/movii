@@ -8,6 +8,13 @@ const SUPABASE_URL = 'https://dzuckyiplwnlnbeggdxb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_uqhhhD0Oj4TegojFRkHTSQ_Ecxtf4J_';
 const CSV_DATA_URL = "https://moviifox.free.nf/movies_data.csv";
 
+// Dynamically load Font Awesome for player icons
+if (typeof document !== 'undefined' && !document.querySelector('link[href*="font-awesome"]')) {
+  const fa = document.createElement('link');
+  fa.rel = 'stylesheet';
+  fa.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css';
+  document.head.appendChild(fa);
+}
 
 const IS_GOOGLE_TV = (() => {
   try {
