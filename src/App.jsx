@@ -929,6 +929,7 @@ const VideoPlayer = React.memo(({ src, title, titleAlt, poster, onClose, disable
   const [showPoster, setShowPoster] = useState(true);
   const [showResume, setShowResume] = useState(false);
   const [savedProgress, setSavedProgress] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const RESUME_KEY = `mf_resume_${title || 'unknown'}`;
 
@@ -1036,11 +1037,18 @@ const VideoPlayer = React.memo(({ src, title, titleAlt, poster, onClose, disable
       setControlsVisible(true);
     };
 
+    const onWaiting = () => setIsLoading(true);
+    const onPlaying = () => setIsLoading(false);
+    const onCanPlay = () => setIsLoading(false);
+
     v.addEventListener('loadedmetadata', onLoadedMetadata);
     v.addEventListener('timeupdate', onTimeUpdate);
     v.addEventListener('play', onPlay);
     v.addEventListener('pause', onPause);
     v.addEventListener('ended', onEnded);
+    v.addEventListener('waiting', onWaiting);
+    v.addEventListener('playing', onPlaying);
+    v.addEventListener('canplay', onCanPlay);
 
     return () => {
       v.removeEventListener('loadedmetadata', onLoadedMetadata);
@@ -1048,9 +1056,12 @@ const VideoPlayer = React.memo(({ src, title, titleAlt, poster, onClose, disable
       v.removeEventListener('play', onPlay);
       v.removeEventListener('pause', onPause);
       v.removeEventListener('ended', onEnded);
+      v.removeEventListener('waiting', onWaiting);
+      v.removeEventListener('playing', onPlaying);
+      v.removeEventListener('canplay', onCanPlay);
       saveProgress(true);
     };
-  }, [src, getSavedProgress, saveProgress, clearProgress, showControls]);
+  }, [src, disableResume, getSavedProgress, saveProgress, showControls]);
 
   // Save on window unload
   useEffect(() => {
@@ -1225,6 +1236,14 @@ const VideoPlayer = React.memo(({ src, title, titleAlt, poster, onClose, disable
         <div className="mf-player-poster-cover" />
       )}
 
+      {/* Loading overlay */}
+      {isLoading && !showPoster && !showResume && (
+        <div className="mf-player-loading-overlay">
+          <div className="mf-player-spinner"></div>
+          <span className="mf-player-loading-text">กำลังโหลด...</span>
+        </div>
+      )}
+
       {/* Title bar */}
       <div className="mf-player-titlebar" style={{ opacity: controlsVisible ? 1 : 0 }}>
         <div className="mf-player-titlebox">
@@ -1287,6 +1306,7 @@ const Modal = ({ movie, onClose }) => {
   const [activeBtn, setActiveBtn] = useState(0);
   const [fullscreenSrc, setFullscreenSrc] = useState(null); // external content shown inside fullscreen overlay
   const [isTrailer, setIsTrailer] = useState(false); // track if playing trailer
+  const [currentEp, setCurrentEp] = useState(null); // track current episode
   const [showDescPopup, setShowDescPopup] = useState(false);
   const descRef = useRef(null);
   const [hasMoreDesc, setHasMoreDesc] = useState(false);
@@ -1344,11 +1364,12 @@ const Modal = ({ movie, onClose }) => {
     }
   }, [fullscreenSrc, clearFullscreenFallback]);
 
-  const openFullscreen = (url, trailer = false) => {
+  const openFullscreen = (url, trailer = false, ep = null) => {
     if (!url) return;
     try {
       const target = url.startsWith('//') ? `https:${url}` : url;
       setIsTrailer(trailer);
+      setCurrentEp(ep);
       setFullscreenSrc(target);
     } catch { }
   };
@@ -1533,7 +1554,7 @@ const Modal = ({ movie, onClose }) => {
         if (focusClose) { onClose(); return; }
         if (isSeries && epFocus >= 0 && Array.isArray(movie?.episodes)) {
           const ep = movie.episodes[epFocus];
-          if (ep?.link) { openFullscreen(ep.link); }
+          if (ep?.link) { openFullscreen(ep.link, false, ep); }
         } else if (focusMore) {
           if (hasMoreDesc) setShowDescPopup(true);
         } else if (!isSeries && activeBtn === 0 && movie?.movielink) {
@@ -1724,8 +1745,8 @@ const Modal = ({ movie, onClose }) => {
         <div className="fixed inset-0 z-[140] bg-black">
           <VideoPlayer
             src={fullscreenSrc}
-            title={movie?.title || ''}
-            titleAlt={movie?.title_alt || ''}
+            title={currentEp?.ename ? currentEp.ename : (currentEp ? `${currentEp.name} ${movie?.title || ''}` : (movie?.title || ''))}
+            titleAlt={currentEp?.ename ? (currentEp.ename2 || '') : (movie?.title_alt || '')}
             poster={movie?.image || ''}
             onClose={() => closeFullscreen(true)}
             disableResume={isTrailer}
@@ -1837,7 +1858,7 @@ const Modal = ({ movie, onClose }) => {
                       key={i}
                       ref={el => epRefs.current[i] = el}
                       className={`w-full py-[0.9vw] px-[0.9vw] rounded-[1.8vw] border text-white text-[1.6vw] truncate transition-all ${epFocus === i ? 'bg-white/20 border-white/60 ring-2 ring-white/50 scale-[1.03]' : 'bg-white/5 hover:bg-white/10 border-white/10'}`}
-                      onClick={() => { if (ep?.link) { openFullscreen(ep.link); } }}
+                      onClick={() => { if (ep?.link) { openFullscreen(ep.link, false, ep); } }}
                       title={ep?.name || `ตอนที่ ${i + 1}`}
                     >
                       {ep?.name || `ตอนที่ ${i + 1}`}
@@ -2814,6 +2835,10 @@ export default function App() {
           height: 100vh;
           background: black;
           overflow: hidden;
+          outline: none;
+        }
+        .mf-player-container * {
+          outline: none !important;
         }
         .mf-player-video {
           width: 100%;
@@ -2827,6 +2852,36 @@ export default function App() {
           background: transparent;
           pointer-events: none;
           z-index: 1;
+        }
+        .mf-player-loading-overlay {
+          position: absolute;
+          inset: 0;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          background: rgba(0, 0, 0, 0.4);
+          z-index: 2;
+          pointer-events: none;
+        }
+        .mf-player-spinner {
+          width: 50px;
+          height: 50px;
+          border: 4px solid rgba(255, 255, 255, 0.2);
+          border-top-color: white;
+          border-radius: 50%;
+          animation: mf-spin 1s linear infinite;
+          margin-bottom: 15px;
+        }
+        @keyframes mf-spin {
+          to { transform: rotate(360deg); }
+        }
+        .mf-player-loading-text {
+          color: white;
+          font-family: 'Foxgraphie', sans-serif;
+          font-size: 20px;
+          letter-spacing: 1px;
+          text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
         .mf-player-titlebar {
           position: absolute;
@@ -2953,6 +3008,10 @@ export default function App() {
           cursor: pointer;
           position: relative;
           overflow: hidden;
+          outline: none;
+        }
+        .mf-player-progress-bar:focus {
+          outline: none;
         }
         .mf-player-progress {
           height: 100%;
