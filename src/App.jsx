@@ -2507,7 +2507,12 @@ export default function App() {
                 setActiveCol(0);
               }
             } else if (currentActiveRow < currentGridRows - 1) { // In grid
-              setActiveRow(prev => prev + 1);
+              const nextRow = currentActiveRow + 1;
+              if (nextRow === currentGridRows - 1) {
+                const itemsInLastRow = currentMoviesOnPage.length % gridColumns || gridColumns;
+                setActiveCol(prev => Math.min(prev, itemsInLastRow - 1));
+              }
+              setActiveRow(nextRow);
             }
           } else if (currentIsGridMode) {
             if (currentActiveRow === -1) {
@@ -2516,7 +2521,12 @@ export default function App() {
                 setActiveCol(0);
               }
             } else if (currentActiveRow < currentGridRows - 1) {
-              setActiveRow(prev => prev + 1);
+              const nextRow = currentActiveRow + 1;
+              if (nextRow === currentGridRows - 1) {
+                const itemsInLastRow = currentMoviesOnPage.length % gridColumns || gridColumns;
+                setActiveCol(prev => Math.min(prev, itemsInLastRow - 1));
+              }
+              setActiveRow(nextRow);
             } else if (currentActiveRow === currentGridRows - 1 && paginationItems.length > 0) {
               let target = 0;
               if (paginationItems[target].active) target++;
