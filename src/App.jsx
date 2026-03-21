@@ -836,8 +836,8 @@ const Hero = React.memo(({ movie, isFocused, activeBtnIndex, onPlay, isModalOpen
       <div className="absolute inset-0 bg-gradient-to-r from-[#000]/80 via-transparent to-transparent" />
 
       <div className={`absolute bottom-0 left-0 w-full px-[4.2vw] pb-[6.25vw] flex flex-col items-start gap-[1.5vw] transition-all duration-700 ${isFocused ? 'translate-y-0 opacity-100' : 'translate-y-[2.5vw] opacity-80'}`}>
-        <h1 className="text-[5.6vw] font-semibold text-transparent bg-clip-text bg-gradient-to-b from-white to-white/60 drop-shadow-2xl leading-[0.9] tracking-normal">{movie.title}</h1>
-        <p className={`text-zinc-300 text-[1.5vw] max-w-[55vw] line-clamp-2 leading-relaxed font-light ${TV_PERF_MODE ? '' : 'mix-blend-plus-lighter'}`}>{movie.description}</p>
+        <h1 className="text-[4.6vw] font-semibold text-transparent bg-clip-text bg-gradient-to-b from-white to-white/60 drop-shadow-2xl leading-[0.9] tracking-normal">{movie.title}</h1>
+        <p className={`text-zinc-300 text-[1.5vw] max-w-[45vw] line-clamp-2 leading-relaxed font-light ${TV_PERF_MODE ? '' : 'mix-blend-plus-lighter'}`}>{movie.description}</p>
         <div className="flex items-center gap-[1.8vw] mt-[1.8vw]">
           <button className={`relative overflow-hidden group flex items-center gap-[1.2vw] px-[3.5vw] py-[1.6vw] rounded-[2.5rem] font-semibold transition-all duration-300 ease-out ${isFocused && activeBtnIndex === 0 ? 'bg-white text-black scale-110 shadow-[0_0_3vw_rgba(255,255,255,0.4)] ring-[0.25vw] ring-white/50' : `${TV_PERF_MODE ? 'bg-white/10' : 'bg-white/10 backdrop-blur-xl'} text-white hover:bg-white/20 ring-[0.15vw] ring-white/10`}`} onClick={onPlay}>
             <span className="text-[1.4vw]">ดูรายละเอียด</span>
