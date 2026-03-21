@@ -461,10 +461,10 @@ const Navbar = ({ isFocused, activeNavIndex, activeTab, onSelect }) => (
 
 const BrandRow = React.memo(({ activeRow, activeCol, rowIndex, rowRefMap }) => {
   const brands = [
-    { id: 1, image: 'http://moviifox.x10.mx/aset/netflix.webp' },
-    { id: 2, image: 'http://moviifox.x10.mx/aset/disney.webp' },
-    { id: 3, image: 'https://dzuckyiplwnlnbeggdxb.supabase.co/storage/v1/object/public/img/hbo.webp' },
-    { id: 4, image: 'http://moviifox.x10.mx/aset/marvel.webp' }
+    { id: 1, image: 'https://raw.githubusercontent.com/Moviifox/trailer/refs/heads/main/cover/netflix.webp' },
+    { id: 2, image: 'https://raw.githubusercontent.com/Moviifox/trailer/refs/heads/main/cover/disney.webp' },
+    { id: 3, image: 'https://raw.githubusercontent.com/Moviifox/trailer/refs/heads/main/cover/hbo.webp' },
+    { id: 4, image: 'https://raw.githubusercontent.com/Moviifox/trailer/refs/heads/main/cover/mavel.webp' }
   ];
 
   const isActive = activeRow === rowIndex;
@@ -832,8 +832,8 @@ const Hero = React.memo(({ movie, isFocused, activeBtnIndex, onPlay, isModalOpen
       )}
 
 
-      <div className="absolute inset-0 bg-gradient-to-t from-[#000] via-[#000]/40 to-transparent" />
-      <div className="absolute inset-0 bg-gradient-to-r from-[#000]/80 via-transparent to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-[#000] via-[#000]/30 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-r from-[#000]/35 via-transparent to-transparent" />
 
       <div className={`absolute bottom-0 left-0 w-full px-[4.2vw] pb-[5vw] flex flex-col items-start gap-[1.5vw] transition-all duration-700 ${isFocused ? 'translate-y-0 opacity-100' : 'translate-y-[2.5vw] opacity-80'}`}>
         <h1 className="text-[4.6vw] font-semibold text-transparent bg-clip-text bg-gradient-to-b from-white to-white/60 drop-shadow-2xl leading-[0.9] tracking-normal">{movie.title}</h1>
@@ -984,6 +984,19 @@ const VideoPlayer = React.memo(({ src, title, titleAlt, poster, onClose, disable
     return null;
   }, [RESUME_KEY]);
 
+  // Helper: try play with sound, if blocked by autoplay policy, try muted
+  const tryPlay = useCallback((v) => {
+    if (!v) return;
+    const p = v.play();
+    if (p && typeof p.catch === 'function') {
+      p.catch(() => {
+        // Autoplay blocked — retry muted
+        v.muted = true;
+        v.play().catch(() => { });
+      });
+    }
+  }, []);
+
   // On mount: load metadata and check resume
   useEffect(() => {
     const v = videoRef.current;
@@ -995,7 +1008,7 @@ const VideoPlayer = React.memo(({ src, title, titleAlt, poster, onClose, disable
         // Trailer mode: always play from start, no resume
         setShowResume(false);
         setShowPoster(false);
-        try { v.play(); } catch { }
+        tryPlay(v);
         return;
       }
       const saved = getSavedProgress();
@@ -1008,7 +1021,7 @@ const VideoPlayer = React.memo(({ src, title, titleAlt, poster, onClose, disable
         setShowResume(false);
         setShowPoster(false);
         // No saved progress — start playing immediately
-        try { v.play(); } catch { }
+        tryPlay(v);
       }
     };
 
@@ -1050,6 +1063,11 @@ const VideoPlayer = React.memo(({ src, title, titleAlt, poster, onClose, disable
     v.addEventListener('playing', onPlaying);
     v.addEventListener('canplay', onCanPlay);
 
+    // If metadata is already loaded (e.g. after refresh with cached video), trigger manually
+    if (v.readyState >= 1) {
+      onLoadedMetadata();
+    }
+
     return () => {
       v.removeEventListener('loadedmetadata', onLoadedMetadata);
       v.removeEventListener('timeupdate', onTimeUpdate);
@@ -1086,14 +1104,14 @@ const VideoPlayer = React.memo(({ src, title, titleAlt, poster, onClose, disable
           }
           setShowResume(false);
           setShowPoster(false);
-          try { v.play(); } catch { }
+          tryPlay(v);
           showControls();
         } else if (e.key === 'ArrowLeft') {
           // Restart
           try { v.currentTime = 0; } catch { }
           setShowResume(false);
           setShowPoster(false);
-          try { v.play(); } catch { }
+          tryPlay(v);
           showControls();
         }
         return;
@@ -1130,7 +1148,7 @@ const VideoPlayer = React.memo(({ src, title, titleAlt, poster, onClose, disable
         case ' ':
           e.preventDefault();
           if (v.paused) {
-            try { v.play(); } catch { }
+            tryPlay(v);
           } else {
             v.pause();
           }
@@ -1160,13 +1178,13 @@ const VideoPlayer = React.memo(({ src, title, titleAlt, poster, onClose, disable
       // Seek first, then play once seeked to avoid buffering from 0
       const onSeeked = () => {
         v.removeEventListener('seeked', onSeeked);
-        try { v.play(); } catch { }
+        tryPlay(v);
         showControls();
       };
       v.addEventListener('seeked', onSeeked);
       try { v.currentTime = targetTime; } catch { }
     } else {
-      try { v.play(); } catch { }
+      tryPlay(v);
       showControls();
     }
   };
@@ -1176,7 +1194,7 @@ const VideoPlayer = React.memo(({ src, title, titleAlt, poster, onClose, disable
     try { v.currentTime = 0; } catch { }
     setShowResume(false);
     setShowPoster(false);
-    try { v.play(); } catch { }
+    tryPlay(v);
     showControls();
   };
 
@@ -1193,7 +1211,7 @@ const VideoPlayer = React.memo(({ src, title, titleAlt, poster, onClose, disable
     const v = videoRef.current;
     if (!v) return;
     if (v.paused) {
-      try { v.play(); } catch { }
+      tryPlay(v);
     } else {
       v.pause();
     }
@@ -1219,6 +1237,16 @@ const VideoPlayer = React.memo(({ src, title, titleAlt, poster, onClose, disable
 
   const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
 
+  if (src === 'error-not-found') {
+    return (
+      <div className="mf-player-container flex flex-col items-center justify-center text-white relative bg-[#0a0a0a]">
+        <i className="fa-solid fa-video-slash text-[6vw] mb-[1.5vw] text-white/30"></i>
+        <h2 className="text-[2.5vw] font-semibold mb-[0.5vw] text-white/80" style={{ fontFamily: 'Foxgraphie, sans-serif' }}>ไม่พบวิดีโอ</h2>
+        <p className="text-[1.2vw] text-white/50 mb-[2.5vw] font-light tracking-wide">ขออภัย ยังไม่มีวิดีโอสำหรับเนื้อหานี้</p>
+      </div>
+    );
+  }
+
   return (
     <div ref={containerRef} className="mf-player-container">
       {/* Video */}
@@ -1237,7 +1265,7 @@ const VideoPlayer = React.memo(({ src, title, titleAlt, poster, onClose, disable
       )}
 
       {/* Loading overlay */}
-      {isLoading && !showPoster && !showResume && (
+      {isLoading && !showResume && (
         <div className="mf-player-loading-overlay">
           <div className="mf-player-spinner"></div>
           <span className="mf-player-loading-text">กำลังโหลด...</span>
@@ -1303,10 +1331,29 @@ const VideoPlayer = React.memo(({ src, title, titleAlt, poster, onClose, disable
 
 
 const Modal = ({ movie, onClose }) => {
+  const PLAYER_STATE_KEY = 'mf_player_state';
   const [activeBtn, setActiveBtn] = useState(0);
-  const [fullscreenSrc, setFullscreenSrc] = useState(null); // external content shown inside fullscreen overlay
-  const [isTrailer, setIsTrailer] = useState(false); // track if playing trailer
-  const [currentEp, setCurrentEp] = useState(null); // track current episode
+  const [fullscreenSrc, setFullscreenSrc] = useState(() => {
+    try {
+      const saved = sessionStorage.getItem(PLAYER_STATE_KEY);
+      if (saved) { const s = JSON.parse(saved); return s.fullscreenSrc || null; }
+    } catch { }
+    return null;
+  });
+  const [isTrailer, setIsTrailer] = useState(() => {
+    try {
+      const saved = sessionStorage.getItem(PLAYER_STATE_KEY);
+      if (saved) { const s = JSON.parse(saved); return !!s.isTrailer; }
+    } catch { }
+    return false;
+  });
+  const [currentEp, setCurrentEp] = useState(() => {
+    try {
+      const saved = sessionStorage.getItem(PLAYER_STATE_KEY);
+      if (saved) { const s = JSON.parse(saved); return s.currentEp || null; }
+    } catch { }
+    return null;
+  });
   const [showDescPopup, setShowDescPopup] = useState(false);
   const descRef = useRef(null);
   const [hasMoreDesc, setHasMoreDesc] = useState(false);
@@ -1347,30 +1394,30 @@ const Modal = ({ movie, onClose }) => {
       } catch {
         awaitingFullscreenPop.current = false;
         clearFullscreenFallback();
-        setFullscreenSrc(null);
+        setFullscreenSrc(null); try { sessionStorage.removeItem(PLAYER_STATE_KEY); } catch { }
         return;
       }
       clearFullscreenFallback();
       fullscreenPopFallbackTimer.current = setTimeout(() => {
         if (awaitingFullscreenPop.current) {
           awaitingFullscreenPop.current = false;
-          setFullscreenSrc(null);
+          setFullscreenSrc(null); try { sessionStorage.removeItem(PLAYER_STATE_KEY); } catch { }
         }
       }, 300);
     } else {
       awaitingFullscreenPop.current = false;
       clearFullscreenFallback();
-      setFullscreenSrc(null);
+      setFullscreenSrc(null); try { sessionStorage.removeItem(PLAYER_STATE_KEY); } catch { }
     }
   }, [fullscreenSrc, clearFullscreenFallback]);
 
   const openFullscreen = (url, trailer = false, ep = null) => {
-    if (!url) return;
     try {
-      const target = url.startsWith('//') ? `https:${url}` : url;
+      const target = url ? (url.startsWith('//') ? `https:${url}` : url) : 'error-not-found';
       setIsTrailer(trailer);
       setCurrentEp(ep);
       setFullscreenSrc(target);
+      try { sessionStorage.setItem(PLAYER_STATE_KEY, JSON.stringify({ fullscreenSrc: target, isTrailer: trailer, currentEp: ep })); } catch { }
     } catch { }
   };
 
@@ -1557,10 +1604,10 @@ const Modal = ({ movie, onClose }) => {
           if (ep?.link) { openFullscreen(ep.link, false, ep); }
         } else if (focusMore) {
           if (hasMoreDesc) setShowDescPopup(true);
-        } else if (!isSeries && activeBtn === 0 && movie?.movielink) {
-          openFullscreen(movie.movielink);
-        } else if (activeBtn === 1 && movie?.trailer) {
-          openFullscreen(movie.trailer, true);
+        } else if (!isSeries && activeBtn === 0) {
+          openFullscreen(movie?.movielink);
+        } else if (activeBtn === 1) {
+          openFullscreen(movie?.trailer, true);
         }
       }
     };
@@ -1690,7 +1737,7 @@ const Modal = ({ movie, onClose }) => {
         try { window.__moviifoxSuppressModalPop = true; } catch { }
         awaitingFullscreenPop.current = false;
         clearFullscreenFallback();
-        setFullscreenSrc(null);
+        setFullscreenSrc(null); try { sessionStorage.removeItem(PLAYER_STATE_KEY); } catch { }
         setTimeout(() => {
           try { window.__moviifoxSuppressModalPop = false; } catch { }
         }, 0);
@@ -1828,13 +1875,13 @@ const Modal = ({ movie, onClose }) => {
             <div className="flex gap-[1.5vw] mt-auto">
               <button
                 className={`flex-1 py-[1.3vw] rounded-[2vw] font-semibold text-[1.4vw] transition-all duration-300 flex items-center justify-center gap-[1vw] ${(activeBtn === 0 && epFocus === -1 && !focusMore && !focusClose) ? 'bg-white text-black scale-105 shadow-[0_0_2vw_rgba(255,255,255,0.3)]' : 'bg-white/5 text-white hover:bg-white/10 border border-white/10'}`}
-                onClick={() => movie?.movielink && openFullscreen(movie.movielink)}
+                onClick={() => openFullscreen(movie?.movielink)}
               >
                 <Play className="w-[1.6vw] h-[1.6vw] fill-current" /> เล่นเลย
               </button>
               <button
                 className={`flex-1 py-[1.3vw] rounded-[2vw] font-semibold text-[1.4vw] transition-all duration-0 ${(activeBtn === 1 && epFocus === -1 && !focusMore && !focusClose) ? 'bg-white/10 text-white border-2 border-white/70 scale-105 shadow-[0_0_2vw_rgba(255,255,255,0.12)]' : 'bg-white/5 text-white hover:bg-white/10'}`}
-                onClick={() => movie?.trailer && openFullscreen(movie.trailer, true)}
+                onClick={() => openFullscreen(movie?.trailer, true)}
               >
                 ดูตัวอย่าง
               </button>
@@ -1858,7 +1905,7 @@ const Modal = ({ movie, onClose }) => {
                       key={i}
                       ref={el => epRefs.current[i] = el}
                       className={`w-full py-[0.9vw] px-[0.9vw] rounded-[1.8vw] border text-white text-[1.6vw] truncate transition-all ${epFocus === i ? 'bg-white/20 border-white/60 ring-2 ring-white/50 scale-[1.03]' : 'bg-white/5 hover:bg-white/10 border-white/10'}`}
-                      onClick={() => { if (ep?.link) { openFullscreen(ep.link, false, ep); } }}
+                      onClick={() => openFullscreen(ep?.link, false, ep)}
                       title={ep?.name || `ตอนที่ ${i + 1}`}
                     >
                       {ep?.name || `ตอนที่ ${i + 1}`}
@@ -1929,14 +1976,19 @@ const GridPage = ({ movies, activeRow, activeCol, onMovieClick, rowRefMap, curre
 
 
   return (
-    <div className="w-full min-h-screen bg-black">
-      <div className={`transition-all duration-700 ease-out ${isPageActive ? 'opacity-100 scale-100 brightness-100' : 'opacity-40 brightness-50'}`}>
-        <div className={`relative w-full h-[40vw] overflow-hidden`}>
-          <div className="absolute inset-0">
-            <img src={coverImage || "http://moviifox.x10.mx/aset/tv_banner2.webp"} alt="Cover" className="w-full h-full object-cover opacity-60" /> // Hero Fallback
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-transparent to-black/80" />
+    <div className="w-full min-h-screen bg-black relative">
+      <div className={`relative transition-all duration-700 ease-out ${isPageActive ? 'opacity-100 brightness-100' : 'opacity-40 brightness-50'}`}>
+
+        {/* Parallax Sticky Header */}
+        <div className="absolute inset-x-0 top-0 bottom-0 z-0 pointer-events-none">
+          <div className="sticky top-0 w-full">
+            <img src={coverImage || "http://moviifox.x10.mx/aset/tv_banner2.webp"} alt="Cover" className="w-full h-[40vw] object-cover opacity-60" />
           </div>
+        </div>
+
+        {/* Hero Content Layer */}
+        <div className="relative z-10 w-full h-[40vw]">
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-transparent" />
           <div className="absolute bottom-0 left-0 w-full px-[4vw] pb-[2vw] flex items-end justify-between">
             <div>
               <h1 className="font-bold leading-none drop-shadow-xl"
@@ -1952,7 +2004,9 @@ const GridPage = ({ movies, activeRow, activeCol, onMovieClick, rowRefMap, curre
             {showFilters && <div className="mb-[0.5vw]"><GridFilter activeIndex={activeCol} isFocused={activeRow === -1} currentFilter={currentFilter} onSelect={onFilterChange} /></div>}
           </div>
         </div>
-        <div className="px-[4vw] pt-[2.5vw]">
+
+        {/* Movie Grid Layer */}
+        <div className="relative z-10 px-[4vw] pt-[2.5vw] bg-black min-h-[50vh]">
           <div className="grid grid-cols-4 gap-[2vw]">
             {currentMovies.map((movie, index) => {
               const rowIndex = Math.floor(index / gridColumns);
@@ -2053,6 +2107,7 @@ export default function App() {
   const lastInputTime = useRef(0);
   const APP_STATE_KEY = 'moviifox_app_state_v1';
   const pendingRestore = useRef(null);
+  const isRestoredRef = useRef(false);
   const actionSuppressUntil = useRef(0);
   const previousActiveTab = useRef(activeTab);
   const lastScrollTopRef = useRef(0);
@@ -2169,10 +2224,14 @@ export default function App() {
         }
       } catch { }
       pendingRestore.current = null;
+      isRestoredRef.current = true;
+    } else {
+      isRestoredRef.current = true;
     }
   }, [allMovies]);
 
   useEffect(() => {
+    if (!isRestoredRef.current) return; // Don't save until restore is complete
     const snapshot = {
       activeTab,
       currentFilter,
@@ -2697,20 +2756,20 @@ export default function App() {
       let pageSubtitle = 'Movies/Series';
       let showFilters = true;
       let titleStyle = { fontSize: '3.5vw', color: 'white', fontFamily: 'Foxgraphie, sans-serif' };
-      let coverImage = 'http://moviifox.x10.mx/aset/netflixpage.webp';
+      let coverImage = 'https://raw.githubusercontent.com/Moviifox/trailer/refs/heads/main/cover/netflixpage.webp';
 
 
       if (activeTab === 'y_content') {
         pageTitle = 'สายวายต้องฟิน';
         pageSubtitle = 'Boy love/Yaoi';
         showFilters = false;
-        coverImage = 'http://moviifox.x10.mx/aset/ypage.webp';
+        coverImage = 'https://raw.githubusercontent.com/Moviifox/trailer/refs/heads/main/cover/ypage.webp';
       }
       else if (activeTab === 'k_content') {
         pageTitle = 'เอาใจสายเกา';
         pageSubtitle = 'Korean movies/series';
         showFilters = false;
-        coverImage = 'http://moviifox.x10.mx/aset/koreapage.webp';
+        coverImage = 'https://raw.githubusercontent.com/Moviifox/trailer/refs/heads/main/cover/koreapage.webp';
       }
       else if (activeTab === 'festival') {
         pageTitle = 'ฮาโลวีน'; //แก้ชื่อหน้า festival ตรงนี้
@@ -2721,31 +2780,31 @@ export default function App() {
           color: 'white',
           fontFamily: 'Foxgraphie, sans-serif'
         };
-        coverImage = 'http://moviifox.x10.mx/aset/festivalpage.webp';//แก้รูปปกหน้า festival ตรงนี้
+        coverImage = 'https://raw.githubusercontent.com/Moviifox/trailer/refs/heads/main/cover/fespage.webp';//แก้รูปปกหน้า festival ตรงนี้
       }
       else if (activeTab === 'brand_netflix') {
         pageTitle = 'เน็ตฟลิก';
         pageSubtitle = 'Netflix';
         showFilters = false;
-        coverImage = 'http://moviifox.x10.mx/aset/netflixpage.webp';
+        coverImage = 'https://raw.githubusercontent.com/Moviifox/trailer/refs/heads/main/cover/netflixpage2.webp';
       }
       else if (activeTab === 'brand_disney') {
         pageTitle = 'ดิสนีย์พลัส';
         pageSubtitle = 'Disney+';
         showFilters = false;
-        coverImage = 'http://moviifox.x10.mx/aset/disneypage.webp';
+        coverImage = 'https://raw.githubusercontent.com/Moviifox/trailer/refs/heads/main/cover/disneypage.webp';
       }
       else if (activeTab === 'brand_hbo') {
         pageTitle = 'เอชบีโอ ออริจินัล';
         pageSubtitle = 'HBO Original';
         showFilters = false;
-        coverImage = 'http://moviifox.x10.mx/aset/hbopage.webp';
+        coverImage = 'https://raw.githubusercontent.com/Moviifox/trailer/refs/heads/main/cover/hbopage.webp';
       }
       else if (activeTab === 'brand_marvel') {
         pageTitle = 'มาร์เวล';
         pageSubtitle = 'Marvel';
         showFilters = false;
-        coverImage = 'http://moviifox.x10.mx/aset/marvelpage.webp';
+        coverImage = 'https://raw.githubusercontent.com/Moviifox/trailer/refs/heads/main/cover/mavelpage.webp';
       }
 
 
@@ -2794,7 +2853,7 @@ export default function App() {
 
 
   return (
-    <div className="min-h-screen bg-black text-white font-sans overflow-x-hidden selection:bg-white selection:text-black">
+    <div className="min-h-screen bg-black text-white font-sans overflow-x-clip selection:bg-white selection:text-black">
       <Navbar isFocused={activeRow === -2} activeNavIndex={activeCol} activeTab={activeTab} onSelect={handleNavbarSelect} />
       <div className="transition-all duration-300">
         {renderContent()}
