@@ -928,6 +928,7 @@ const VideoPlayer = React.memo(({ src, title, titleAlt, poster, onClose, disable
   const [controlsVisible, setControlsVisible] = useState(true);
   const [showPoster, setShowPoster] = useState(true);
   const [showResume, setShowResume] = useState(false);
+  const [resumeFocus, setResumeFocus] = useState(0); // 0 = continue, 1 = restart
   const [savedProgress, setSavedProgress] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -1094,29 +1095,6 @@ const VideoPlayer = React.memo(({ src, title, titleAlt, poster, onClose, disable
       const v = videoRef.current;
       if (!v) return;
 
-      // If resume overlay is active
-      if (showResume) {
-        e.preventDefault();
-        if (e.key === 'Enter') {
-          // Continue from saved position
-          if (savedProgress && savedProgress.time) {
-            try { v.currentTime = Math.min(savedProgress.time, Math.max(0, v.duration - 1)); } catch { }
-          }
-          setShowResume(false);
-          setShowPoster(false);
-          tryPlay(v);
-          showControls();
-        } else if (e.key === 'ArrowLeft') {
-          // Restart
-          try { v.currentTime = 0; } catch { }
-          setShowResume(false);
-          setShowPoster(false);
-          tryPlay(v);
-          showControls();
-        }
-        return;
-      }
-
       // Back / Close keys
       const isTvBack = (e.key === 'Back' || e.key === 'GoBack' || e.key === 'BrowserBack');
       const isTvBackCode = (e.keyCode === 10009 || e.keyCode === 461);
@@ -1126,6 +1104,36 @@ const VideoPlayer = React.memo(({ src, title, titleAlt, poster, onClose, disable
         try { v.pause(); } catch { }
         saveProgress(true);
         onClose();
+        return;
+      }
+
+      // If resume overlay is active
+      if (showResume) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (e.key === 'ArrowRight') {
+          setResumeFocus(1);
+        } else if (e.key === 'ArrowLeft') {
+          setResumeFocus(0);
+        } else if (e.key === 'Enter') {
+          if (resumeFocus === 0) {
+            // Continue from saved position
+            if (savedProgress && savedProgress.time) {
+              try { v.currentTime = Math.min(savedProgress.time, Math.max(0, v.duration - 1)); } catch { }
+            }
+            setShowResume(false);
+            setShowPoster(false);
+            tryPlay(v);
+            showControls();
+          } else {
+            // Restart
+            try { v.currentTime = 0; } catch { }
+            setShowResume(false);
+            setShowPoster(false);
+            tryPlay(v);
+            showControls();
+          }
+        }
         return;
       }
 
@@ -1319,8 +1327,20 @@ const VideoPlayer = React.memo(({ src, title, titleAlt, poster, onClose, disable
               ตำแหน่งล่าสุด {formatTime(savedProgress?.time || 0)} ({duration > 0 ? Math.round(((savedProgress?.time || 0) / duration) * 100) : 0}%)
             </p>
             <div className="mf-player-resume-actions">
-              <button className="mf-player-resume-btn primary" onClick={handleResumeContinue} autoFocus>กด "Enter" เพื่อเล่นต่อ</button>
-              <button className="mf-player-resume-btn" onClick={handleResumeRestart}>กด "ลูกศรซ้าย" เพื่อเริ่มใหม่</button>
+              <button
+                className={`mf-player-resume-btn ${resumeFocus === 0 ? 'bg-white text-black scale-105 shadow-[0_0_2vw_rgba(255,255,255,0.4)]' : 'bg-white/10 text-white border border-white/20'}`}
+                onClick={handleResumeContinue}
+                onMouseEnter={() => setResumeFocus(0)}
+              >
+                เล่นต่อจากตำแหน่งเดิม
+              </button>
+              <button
+                className={`mf-player-resume-btn ${resumeFocus === 1 ? 'bg-white text-black scale-105 shadow-[0_0_2vw_rgba(255,255,255,0.4)]' : 'bg-white/10 text-white border border-white/20'}`}
+                onClick={handleResumeRestart}
+                onMouseEnter={() => setResumeFocus(1)}
+              >
+                เริ่มเล่นใหม่
+              </button>
             </div>
           </div>
         </div>
@@ -1451,11 +1471,7 @@ const Modal = ({ movie, onClose }) => {
       if (isTvBackKey || isTvBackCode) {
         try { e.preventDefault(); } catch { }
         if (showDescPopup) {
-          if (window.history.length > 0) {
-            try { window.history.back(); } catch { setShowDescPopup(false); }
-          } else {
-            setShowDescPopup(false);
-          }
+          setShowDescPopup(false);
         } else {
           onClose();
         }
@@ -1463,11 +1479,7 @@ const Modal = ({ movie, onClose }) => {
       }
       if (e.key === 'Escape' || e.key === 'Backspace') {
         if (showDescPopup) {
-          if (window.history.length > 0) {
-            window.history.back();
-          } else {
-            setShowDescPopup(false);
-          }
+          setShowDescPopup(false);
         } else {
           onClose();
         }
@@ -1541,7 +1553,15 @@ const Modal = ({ movie, onClose }) => {
           const cols = 3;
           const max = movie.episodes.length - 1;
           const next = epFocus + cols;
-          if (next <= max) setEpFocus(next);
+          if (next <= max) {
+            setEpFocus(next);
+          } else {
+            const currentRow = Math.floor(epFocus / cols);
+            const lastRow = Math.floor(max / cols);
+            if (currentRow < lastRow) {
+              setEpFocus(max);
+            }
+          }
           return;
         }
         // Enter episodes grid in series from trailer button
@@ -1880,7 +1900,7 @@ const Modal = ({ movie, onClose }) => {
                 <Play className="w-[1.6vw] h-[1.6vw] fill-current" /> เล่นเลย
               </button>
               <button
-                className={`flex-1 py-[1.3vw] rounded-[2vw] font-semibold text-[1.4vw] transition-all duration-0 ${(activeBtn === 1 && epFocus === -1 && !focusMore && !focusClose) ? 'bg-white/10 text-white border-2 border-white/70 scale-105 shadow-[0_0_2vw_rgba(255,255,255,0.12)]' : 'bg-white/5 text-white hover:bg-white/10'}`}
+                className={`flex-1 py-[1.3vw] rounded-[2vw] font-semibold text-[1.4vw] transition-all duration-300 ${(activeBtn === 1 && epFocus === -1 && !focusMore && !focusClose) ? 'bg-white text-black scale-105 shadow-[0_0_2vw_rgba(255,255,255,0.3)]' : 'bg-white/5 text-white hover:bg-white/10 border border-white/10'}`}
                 onClick={() => openFullscreen(movie?.trailer, true)}
               >
                 ดูตัวอย่าง
@@ -1891,7 +1911,7 @@ const Modal = ({ movie, onClose }) => {
               {movie?.trailer && (
                 <div className="mb-[1.2vw]">
                   <button
-                    className={`w-full py-[1.1vw] rounded-[2.2vw] font-semibold text-[1.6vw] transition-all duration-0 ${(activeBtn === 1 && epFocus === -1 && !focusMore && !focusClose) ? 'bg-white/10 text-white border-2 border-white/70 shadow-[0_0_2vw_rgba(255,255,255,0.12)]' : 'bg-white/5 text-white hover:bg-white/10'}`}
+                    className={`w-full py-[1.1vw] rounded-[2.2vw] font-semibold text-[1.6vw] transition-all duration-300 ${(activeBtn === 1 && epFocus === -1 && !focusMore && !focusClose) ? 'bg-white text-black scale-105 shadow-[0_0_2vw_rgba(255,255,255,0.3)]' : 'bg-white/5 text-white hover:bg-white/10 border border-white/10'}`}
                     onClick={() => openFullscreen(movie.trailer, true)}
                   >
                     ดูตัวอย่าง
@@ -1904,7 +1924,7 @@ const Modal = ({ movie, onClose }) => {
                     <button
                       key={i}
                       ref={el => epRefs.current[i] = el}
-                      className={`w-full py-[0.9vw] px-[0.9vw] rounded-[1.8vw] border text-white text-[1.6vw] truncate transition-all ${epFocus === i ? 'bg-white/20 border-white/60 ring-2 ring-white/50 scale-[1.03]' : 'bg-white/5 hover:bg-white/10 border-white/10'}`}
+                      className={`w-full py-[0.9vw] px-[0.9vw] rounded-[1.8vw] border text-[1.6vw] truncate transition-all ${epFocus === i ? 'bg-white text-black scale-[1.03] shadow-[0_0_2vw_rgba(255,255,255,0.3)]' : 'bg-white/5 text-white hover:bg-white/10 border-white/10'}`}
                       onClick={() => openFullscreen(ep?.link, false, ep)}
                       title={ep?.name || `ตอนที่ ${i + 1}`}
                     >
@@ -2779,7 +2799,7 @@ export default function App() {
         pageTitle = 'เอาใจสายเกา';
         pageSubtitle = 'Korean movies/series';
         showFilters = false;
-        coverImage = 'https://raw.githubusercontent.com/Moviifox/trailer/refs/heads/main/cover/koreapage.webp';
+        coverImage = 'https://raw.githubusercontent.com/Moviifox/trailer/refs/heads/main/cover/koreanpage.webp';
       }
       else if (activeTab === 'festival') {
         pageTitle = 'ฮาโลวีน'; //แก้ชื่อหน้า festival ตรงนี้
@@ -3117,11 +3137,11 @@ export default function App() {
           z-index: 10;
         }
         .mf-player-resume-panel {
-          width: min(90%, 720px);
+          width: min(55%, 720px);
           background: rgba(0, 0, 0, 0.5);
           border: 1px solid rgba(160, 160, 160, 0.2);
           border-radius: 24px;
-          padding: 28px;
+          padding: 32px;
         }
         .mf-player-resume-title {
           margin: 0 0 8px 0;
@@ -3146,9 +3166,6 @@ export default function App() {
         }
         .mf-player-resume-btn {
           appearance: none;
-          border: 1px solid rgba(160, 160, 160, 0.2);
-          background: rgba(255, 255, 255, 0.06);
-          color: #fff;
           font-family: 'Foxgraphie', sans-serif;
           font-weight: 400;
           font-size: 16px;
@@ -3156,10 +3173,7 @@ export default function App() {
           border-radius: 14px;
           padding: 12px 18px;
           cursor: pointer;
-        }
-        .mf-player-resume-btn.primary {
-          background: #ffffff;
-          color: #000000;
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .mf-player-resume-btn:focus {
           outline: none;
