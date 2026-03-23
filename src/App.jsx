@@ -922,6 +922,7 @@ const VideoPlayer = React.memo(({ src, title, titleAlt, poster, onClose, disable
   const containerRef = useRef(null);
   const hideTimeoutRef = useRef(null);
   const lastSavedRef = useRef(0);
+  const restartRequestedRef = useRef(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTimeState] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -929,7 +930,9 @@ const VideoPlayer = React.memo(({ src, title, titleAlt, poster, onClose, disable
   const [showPoster, setShowPoster] = useState(true);
   const [showResume, setShowResume] = useState(false);
   const [resumeFocus, setResumeFocus] = useState(0); // 0 = continue, 1 = restart
+  const resumeFocusRef = useRef(0);
   const [savedProgress, setSavedProgress] = useState(null);
+  const savedProgressRef = useRef(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const RESUME_KEY = `mf_resume_${title || 'unknown'}`;
@@ -1015,6 +1018,7 @@ const VideoPlayer = React.memo(({ src, title, titleAlt, poster, onClose, disable
       const saved = getSavedProgress();
       if (saved && saved.time > 10 && saved.time < (v.duration - 15)) {
         setSavedProgress(saved);
+        savedProgressRef.current = saved;
         setShowResume(true);
         setShowPoster(false);
         // Don't autoplay — wait for user decision
@@ -1113,26 +1117,30 @@ const VideoPlayer = React.memo(({ src, title, titleAlt, poster, onClose, disable
         e.stopPropagation();
         if (e.key === 'ArrowRight') {
           setResumeFocus(1);
+          resumeFocusRef.current = 1;
         } else if (e.key === 'ArrowLeft') {
           setResumeFocus(0);
+          resumeFocusRef.current = 0;
         } else if (e.key === 'Enter') {
-          if (resumeFocus === 0) {
+          const currentResumeFocus = resumeFocusRef.current;
+          const currentSavedProgress = savedProgressRef.current;
+          if (currentResumeFocus === 0) {
             // Continue from saved position
-            if (savedProgress && savedProgress.time) {
-              try { v.currentTime = Math.min(savedProgress.time, Math.max(0, v.duration - 1)); } catch { }
+            if (currentSavedProgress && currentSavedProgress.time) {
+              try { v.currentTime = Math.min(currentSavedProgress.time, Math.max(0, v.duration - 1)); } catch { }
             }
             setShowResume(false);
             setShowPoster(false);
             tryPlay(v);
             showControls();
+          } else {
             // Restart
+            restartRequestedRef.current = true;
+            clearProgress();
             setShowResume(false);
             setShowPoster(false);
-            tryPlay(v);
             try { v.currentTime = 0; } catch { }
-            setTimeout(() => {
-              try { if (v.currentTime > 2) v.currentTime = 0; } catch { }
-            }, 100);
+            tryPlay(v);
             showControls();
           }
         }
@@ -1202,13 +1210,12 @@ const VideoPlayer = React.memo(({ src, title, titleAlt, poster, onClose, disable
   const handleResumeRestart = () => {
     const v = videoRef.current;
     if (!v) return;
+    restartRequestedRef.current = true;
+    clearProgress();
     setShowResume(false);
     setShowPoster(false);
-    tryPlay(v);
     try { v.currentTime = 0; } catch { }
-    setTimeout(() => {
-      try { if (v.currentTime > 2) v.currentTime = 0; } catch { }
-    }, 100);
+    tryPlay(v);
     showControls();
   };
 
