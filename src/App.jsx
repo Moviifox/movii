@@ -205,7 +205,7 @@ const parseThaiDate = (input) => {
 };
 
 
-const FALLBACK_IMAGE_URL = "http://moviifox.x10.mx/aset/tv_banner2.webp";
+const FALLBACK_IMAGE_URL = "https://raw.githubusercontent.com/Moviifox/trailer/refs/heads/main/cover/loading%20.webp";
 
 const getYearFromString = (dateString) => {
   if (!dateString) return '';
@@ -1125,12 +1125,14 @@ const VideoPlayer = React.memo(({ src, title, titleAlt, poster, onClose, disable
             setShowPoster(false);
             tryPlay(v);
             showControls();
-          } else {
             // Restart
-            try { v.currentTime = 0; } catch { }
             setShowResume(false);
             setShowPoster(false);
             tryPlay(v);
+            try { v.currentTime = 0; } catch { }
+            setTimeout(() => {
+              try { if (v.currentTime > 2) v.currentTime = 0; } catch { }
+            }, 100);
             showControls();
           }
         }
@@ -1199,10 +1201,14 @@ const VideoPlayer = React.memo(({ src, title, titleAlt, poster, onClose, disable
 
   const handleResumeRestart = () => {
     const v = videoRef.current;
-    try { v.currentTime = 0; } catch { }
+    if (!v) return;
     setShowResume(false);
     setShowPoster(false);
     tryPlay(v);
+    try { v.currentTime = 0; } catch { }
+    setTimeout(() => {
+      try { if (v.currentTime > 2) v.currentTime = 0; } catch { }
+    }, 100);
     showControls();
   };
 
@@ -1621,7 +1627,7 @@ const Modal = ({ movie, onClose }) => {
         if (focusClose) { onClose(); return; }
         if (isSeries && epFocus >= 0 && Array.isArray(movie?.episodes)) {
           const ep = movie.episodes[epFocus];
-          if (ep?.link) { openFullscreen(ep.link, false, ep); }
+          openFullscreen(ep?.link, false, ep);
         } else if (focusMore) {
           if (hasMoreDesc) setShowDescPopup(true);
         } else if (!isSeries && activeBtn === 0) {
@@ -1841,7 +1847,7 @@ const Modal = ({ movie, onClose }) => {
         </button>
         <div className="absolute top-[-50%] left-[-20%] w-[80%] h-[150%] bg-blue-500/20 rounded-full blur-[10vw] mix-blend-screen pointer-events-none" />
         <div className="relative w-[55%] h-full">
-          <img src={movie.image} alt={movie.title} className="w-full h-full object-cover mask-image-gradient" />
+          <img src={movie.image} alt={movie.title} className="w-full h-full object-cover mask-image-gradient" onError={handleImageError} />
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-zinc-900/20 to-zinc-900/90" />
           {movie.type && (
             <span className="absolute top-[2vw] left-[2vw] bg-black/60 backdrop-blur-md text-white/90 text-[1.2vw] px-[0.7vw] py-[0.2vw] rounded-[0.8vw] border border-white/10 uppercase tracking-wider transform origin-top-left scale-[1.5]">
@@ -2002,7 +2008,7 @@ const GridPage = ({ movies, activeRow, activeCol, onMovieClick, rowRefMap, curre
         {/* Parallax Sticky Header */}
         <div className="absolute inset-x-0 top-0 bottom-0 z-0 pointer-events-none">
           <div className="sticky top-0 w-full">
-            <img src={coverImage || "http://moviifox.x10.mx/aset/tv_banner2.webp"} alt="Cover" className="w-full h-[40vw] object-cover opacity-60" />
+            <img src={coverImage || "https://raw.githubusercontent.com/Moviifox/trailer/refs/heads/main/cover/loading%20.webp"} alt="Cover" className="w-full h-[40vw] object-cover opacity-60" />
           </div>
         </div>
 
