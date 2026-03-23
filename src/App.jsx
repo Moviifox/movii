@@ -683,7 +683,7 @@ const GridMovieCard = React.memo(({ movie, isFocused, onClick, innerRef }) => {
       `}>
         <h3 className={`text-white font-semibold text-[1.6vw] truncate drop-shadow-lg leading-tight ${isFocused ? 'text-white' : 'text-zinc-200'}`}>{movie.title}</h3>
 
-        <div className="flex items-center gap-[0.6vw] mt-[0.4vw]">
+        <div className="flex items-center gap-[0.6vw] mt-[0vw]">
           <span className="text-zinc-300 text-[1.4vw] font-regular truncate flex-1">{movie.title_alt}</span>
           {movie.title_alt && displayYear && <span className="w-[0.25vw] h-[0.25vw] bg-zinc-500 rounded-full flex-shrink-0"></span>}
           <span className="text-zinc-300 text-[1.4vw] font-regular flex-shrink-0">{displayYear}</span>
@@ -1859,9 +1859,9 @@ const Modal = ({ movie, onClose }) => {
         <div ref={rightPanelRef} className="relative w-[45%] px-[4vw] pb-[4vw] pt-[8vw] flex flex-col justify-start z-10 overflow-y-auto">
 
           {/* Title and sub-lines */}
-          <h2 ref={titleRef} className="text-[3.2vw] font-semibold text-white mb-[0.6vw] leading-[1.05] tracking-tight">{movie.title}</h2>
+          <h2 ref={titleRef} className="text-[3vw] font-semibold text-white mb-[0.6vw] leading-[1.05] tracking-tight">{movie.title}</h2>
           {movie.title_alt && (
-            <div className="text-[2.2vw] font-semibold text-zinc-400 mb-[0.6vw] leading-snug">{movie.title_alt}</div>
+            <div className="text-[2vw] font-semibold text-zinc-400 mb-[0.6vw] leading-snug">{movie.title_alt}</div>
           )}
           {infoPieces.length > 0 && (
             <div className="flex items-center flex-wrap gap-x-[1vw] text-[1.8vw] font-regular text-zinc-300 mb-[1.4vw] leading-none">
