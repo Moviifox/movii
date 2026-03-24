@@ -1482,9 +1482,14 @@ const Modal = ({ movie, onClose }) => {
       if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) e.preventDefault();
       // TV remote Back normalization inside modal
       if (isTvBackKey || isTvBackCode) {
-        try { e.preventDefault(); } catch { }
+        try { e.preventDefault(); e.stopImmediatePropagation(); } catch { }
         if (showDescPopup) {
+          // Set suppression flag so popstate handlers don't also close the modal
+          try { window.__moviifoxSuppressDescPop = true; } catch { }
           setShowDescPopup(false);
+          // Pop the desc history entry we pushed
+          try { window.history.back(); } catch { }
+          setTimeout(() => { try { window.__moviifoxSuppressDescPop = false; } catch { } }, 300);
         } else {
           onClose();
         }
@@ -1766,6 +1771,10 @@ const Modal = ({ movie, onClose }) => {
   // Handle popstate (browser/remote back)
   useEffect(() => {
     const onPop = () => {
+      // If description popup close is being handled by keydown, suppress
+      if (typeof window !== 'undefined' && window.__moviifoxSuppressDescPop) {
+        return;
+      }
       if (fullscreenSrc) {
         try { window.__moviifoxSuppressModalPop = true; } catch { }
         awaitingFullscreenPop.current = false;
@@ -2210,6 +2219,9 @@ export default function App() {
         return;
       }
       if (typeof window !== 'undefined' && window.__moviifoxSuppressModalPop) {
+        return;
+      }
+      if (typeof window !== 'undefined' && window.__moviifoxSuppressDescPop) {
         return;
       }
 
