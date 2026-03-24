@@ -546,9 +546,10 @@ const MovieCard = React.memo(({ movie, isFocused, onClick, innerRef }) => {
     <div
       ref={innerRef}
       onClick={handleClick}
+      tabIndex={-1}
       className={`
         relative flex-none w-[24vw] aspect-[16/9] rounded-[2vw] cursor-pointer transition-all duration-300 ease-out
-        group
+        group outline-none
         ${isFocused
           ? 'scale-110 z-20 shadow-[0_0_2vw_rgba(255,255,255,0.3)] ring-[0.3vw] ring-white/80 translate-y-[-0.8vw]'
           : 'hover:scale-105 z-0 opacity-60 hover:opacity-100 hover:brightness-110'}
@@ -644,9 +645,10 @@ const GridMovieCard = React.memo(({ movie, isFocused, onClick, innerRef }) => {
     <div
       ref={innerRef}
       onClick={handleClick}
+      tabIndex={-1}
       className={`
         relative w-full aspect-[16/9] rounded-[1.5vw] cursor-pointer transition-all duration-300
-        group overflow-hidden
+        group overflow-hidden outline-none
         ${isFocused
           ? 'scale-105 z-20 ring-[0.3vw] ring-white/80 shadow-[0_0_2vw_rgba(255,255,255,0.3)]'
           : 'hover:scale-105 opacity-60 hover:opacity-100'}
@@ -1482,12 +1484,9 @@ const Modal = ({ movie, onClose }) => {
       if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) e.preventDefault();
       // TV remote Back normalization inside modal
       if (isTvBackKey || isTvBackCode) {
-        try { e.preventDefault(); e.stopImmediatePropagation(); } catch { }
+        try { e.preventDefault(); } catch { }
         if (showDescPopup) {
-          // Set suppression flag so any popstate from TV native back won't close modal
-          try { window.__moviifoxSuppressDescPop = true; } catch { }
           setShowDescPopup(false);
-          setTimeout(() => { try { window.__moviifoxSuppressDescPop = false; } catch { } }, 500);
         } else {
           onClose();
         }
@@ -1757,20 +1756,18 @@ const Modal = ({ movie, onClose }) => {
     };
   }, [fullscreenSrc]);
 
-  // Push a history state when opening fullscreen overlay so hardware back triggers popstate
+  // Push a history state when opening overlays so hardware back triggers popstate
   useEffect(() => {
     if (fullscreenSrc) {
       try { window.history.pushState({ overlay: 'fullscreen' }, ''); } catch { }
+    } else if (showDescPopup) {
+      try { window.history.pushState({ overlay: 'desc' }, ''); } catch { }
     }
-  }, [fullscreenSrc]);
+  }, [showDescPopup, fullscreenSrc]);
 
   // Handle popstate (browser/remote back)
   useEffect(() => {
     const onPop = () => {
-      // If description popup close is being handled, suppress everything
-      if (typeof window !== 'undefined' && window.__moviifoxSuppressDescPop) {
-        return;
-      }
       if (fullscreenSrc) {
         try { window.__moviifoxSuppressModalPop = true; } catch { }
         awaitingFullscreenPop.current = false;
@@ -1781,12 +1778,15 @@ const Modal = ({ movie, onClose }) => {
         }, 0);
         return;
       }
-      // Description popup doesn't use history anymore, so just close modal
+      if (showDescPopup) {
+        setShowDescPopup(false);
+        return;
+      }
       onClose();
     };
     window.addEventListener('popstate', onPop);
     return () => window.removeEventListener('popstate', onPop);
-  }, [fullscreenSrc, onClose]);
+  }, [fullscreenSrc, showDescPopup, onClose]);
 
   // Measure description lines to decide showing 'เพิ่มเติม'
   useEffect(() => {
@@ -2212,9 +2212,6 @@ export default function App() {
         return;
       }
       if (typeof window !== 'undefined' && window.__moviifoxSuppressModalPop) {
-        return;
-      }
-      if (typeof window !== 'undefined' && window.__moviifoxSuppressDescPop) {
         return;
       }
 
@@ -2905,7 +2902,7 @@ export default function App() {
       <Navbar isFocused={activeRow === -2} activeNavIndex={activeCol} activeTab={activeTab} onSelect={handleNavbarSelect} />
       <div className="transition-all duration-300">
         {renderContent()}
-        {selectedMovie && <Modal movie={selectedMovie} onClose={() => setSelectedMovie(null)} />}
+        {selectedMovie && <Modal movie={selectedMovie} onClose={() => { try { document.activeElement?.blur(); } catch { } setSelectedMovie(null); }} />}
       </div>
       <style>{`
         @font-face { font-family: 'Foxgraphie'; src: url('https://raw.githubusercontent.com/Moviifox/trailer/refs/heads/main/foxgraphie_light.otf'); font-weight: 300; font-display: swap; }
