@@ -1484,12 +1484,10 @@ const Modal = ({ movie, onClose }) => {
       if (isTvBackKey || isTvBackCode) {
         try { e.preventDefault(); e.stopImmediatePropagation(); } catch { }
         if (showDescPopup) {
-          // Set suppression flag so popstate handlers don't also close the modal
+          // Set suppression flag so any popstate from TV native back won't close modal
           try { window.__moviifoxSuppressDescPop = true; } catch { }
           setShowDescPopup(false);
-          // Pop the desc history entry we pushed
-          try { window.history.back(); } catch { }
-          setTimeout(() => { try { window.__moviifoxSuppressDescPop = false; } catch { } }, 300);
+          setTimeout(() => { try { window.__moviifoxSuppressDescPop = false; } catch { } }, 500);
         } else {
           onClose();
         }
@@ -1759,19 +1757,17 @@ const Modal = ({ movie, onClose }) => {
     };
   }, [fullscreenSrc]);
 
-  // Push a history state when opening overlays so hardware back triggers popstate
+  // Push a history state when opening fullscreen overlay so hardware back triggers popstate
   useEffect(() => {
     if (fullscreenSrc) {
       try { window.history.pushState({ overlay: 'fullscreen' }, ''); } catch { }
-    } else if (showDescPopup) {
-      try { window.history.pushState({ overlay: 'desc' }, ''); } catch { }
     }
-  }, [showDescPopup, fullscreenSrc]);
+  }, [fullscreenSrc]);
 
   // Handle popstate (browser/remote back)
   useEffect(() => {
     const onPop = () => {
-      // If description popup close is being handled by keydown, suppress
+      // If description popup close is being handled, suppress everything
       if (typeof window !== 'undefined' && window.__moviifoxSuppressDescPop) {
         return;
       }
@@ -1785,15 +1781,12 @@ const Modal = ({ movie, onClose }) => {
         }, 0);
         return;
       }
-      if (showDescPopup) {
-        setShowDescPopup(false);
-        return;
-      }
+      // Description popup doesn't use history anymore, so just close modal
       onClose();
     };
     window.addEventListener('popstate', onPop);
     return () => window.removeEventListener('popstate', onPop);
-  }, [fullscreenSrc, showDescPopup, onClose]);
+  }, [fullscreenSrc, onClose]);
 
   // Measure description lines to decide showing 'เพิ่มเติม'
   useEffect(() => {
