@@ -1766,6 +1766,9 @@ const Modal = ({ movie, onClose }) => {
   // Handle popstate (browser/remote back)
   useEffect(() => {
     const onPop = () => {
+      if (typeof window !== 'undefined' && window.__moviifoxSuppressModalPop) {
+        return;
+      }
       if (fullscreenSrc) {
         try { window.__moviifoxSuppressModalPop = true; } catch { }
         awaitingFullscreenPop.current = false;
@@ -1777,7 +1780,11 @@ const Modal = ({ movie, onClose }) => {
         return;
       }
       if (showDescPopup) {
+        try { window.__moviifoxSuppressModalPop = true; } catch { }
         setShowDescPopup(false);
+        setTimeout(() => {
+          try { window.__moviifoxSuppressModalPop = false; } catch { }
+        }, 0);
         return;
       }
       onClose();
