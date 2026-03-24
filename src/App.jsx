@@ -1402,6 +1402,7 @@ const Modal = ({ movie, onClose }) => {
   const iframeRef = useRef(null);
   const awaitingFullscreenPop = useRef(false);
   const fullscreenPopFallbackTimer = useRef(null);
+  const suppressNextPopRef = useRef(false);
 
   const clearFullscreenFallback = useCallback(() => {
     if (fullscreenPopFallbackTimer.current) {
@@ -1486,6 +1487,7 @@ const Modal = ({ movie, onClose }) => {
       if (isTvBackKey || isTvBackCode) {
         try { e.preventDefault(); } catch { }
         if (showDescPopup) {
+          suppressNextPopRef.current = true;
           setShowDescPopup(false);
         } else {
           onClose();
@@ -1494,6 +1496,7 @@ const Modal = ({ movie, onClose }) => {
       }
       if (e.key === 'Escape' || e.key === 'Backspace') {
         if (showDescPopup) {
+          suppressNextPopRef.current = true;
           setShowDescPopup(false);
         } else {
           onClose();
@@ -1768,6 +1771,11 @@ const Modal = ({ movie, onClose }) => {
   // Handle popstate (browser/remote back)
   useEffect(() => {
     const onPop = () => {
+      // If the keydown handler already handled this back action, skip
+      if (suppressNextPopRef.current) {
+        suppressNextPopRef.current = false;
+        return;
+      }
       if (fullscreenSrc) {
         try { window.__moviifoxSuppressModalPop = true; } catch { }
         awaitingFullscreenPop.current = false;
