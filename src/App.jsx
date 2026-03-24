@@ -1265,7 +1265,7 @@ const VideoPlayer = React.memo(({ src, title, titleAlt, poster, onClose, disable
       <div className="mf-player-container flex flex-col items-center justify-center text-white relative bg-[#0a0a0a]">
         <i className="fa-solid fa-video-slash text-[6vw] mb-[1.5vw] text-white/30"></i>
         <h2 className="text-[2.5vw] font-semibold mb-[0.5vw] text-white/80" style={{ fontFamily: 'Foxgraphie, sans-serif' }}>ไม่พบวิดีโอ</h2>
-        <p className="text-[1.2vw] text-white/50 mb-[2.5vw] font-light tracking-wide">ขออภัย ยังไม่มีวิดีโอสำหรับเนื้อหานี้</p>
+        <p className="text-[1.8vw] text-white/50 mb-[2.5vw] font-light tracking-wide">ขออภัย ยังไม่มีวิดีโอสำหรับเนื้อหานี้</p>
       </div>
     );
   }
