@@ -1487,8 +1487,8 @@ const Modal = ({ movie, onClose }) => {
       if (isTvBackKey || isTvBackCode) {
         try { e.preventDefault(); } catch { }
         if (showDescPopup) {
-          suppressNextPopRef.current = true;
-          setShowDescPopup(false);
+          // Block back button — only X button can close desc popup
+          return;
         } else {
           onClose();
         }
@@ -1496,8 +1496,8 @@ const Modal = ({ movie, onClose }) => {
       }
       if (e.key === 'Escape' || e.key === 'Backspace') {
         if (showDescPopup) {
-          suppressNextPopRef.current = true;
-          setShowDescPopup(false);
+          // Block back button — only X button can close desc popup
+          return;
         } else {
           onClose();
         }
@@ -1763,10 +1763,9 @@ const Modal = ({ movie, onClose }) => {
   useEffect(() => {
     if (fullscreenSrc) {
       try { window.history.pushState({ overlay: 'fullscreen' }, ''); } catch { }
-    } else if (showDescPopup) {
-      try { window.history.pushState({ overlay: 'desc' }, ''); } catch { }
     }
-  }, [showDescPopup, fullscreenSrc]);
+    // Don't push history state for desc popup — back button is disabled, only X can close it
+  }, [fullscreenSrc]);
 
   // Handle popstate (browser/remote back)
   useEffect(() => {
@@ -1787,7 +1786,7 @@ const Modal = ({ movie, onClose }) => {
         return;
       }
       if (showDescPopup) {
-        setShowDescPopup(false);
+        // Block browser back — only X button can close desc popup
         return;
       }
       onClose();
@@ -1847,7 +1846,31 @@ const Modal = ({ movie, onClose }) => {
 
       {/* Fullscreen description popup */}
       {showDescPopup && (
-        <div className="fixed inset-0 z-[150] bg-black/95 text-white overflow-y-auto">
+        <div className="fixed inset-0 z-[150] bg-black/95 text-white overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+          {/* Close Label and Button container */}
+          <div className="fixed top-[3vw] right-[3vw] z-[200] flex items-center gap-[1.2vw]">
+            <span className="text-white/60 text-[1.4vw] font-medium tracking-wide animate-fade-in">กด Enter เพื่อปิด</span>
+            <button
+              ref={(el) => { if (el) setTimeout(() => { try { el.focus(); } catch {} }, 300); }}
+              className="w-[4vw] h-[4vw] rounded-full flex items-center justify-center bg-[#181616ff] backdrop-blur-2xl border border-white/10 transition-all duration-500 hover:bg-white/20 focus:ring-2 focus:ring-white/50 focus:border-white outline-none"
+              onClick={() => { suppressNextPopRef.current = true; setShowDescPopup(false); }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  suppressNextPopRef.current = true;
+                  setShowDescPopup(false);
+                }
+                // Block all navigation keys to keep focus on X
+                if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }
+              }}
+            >
+              <X className="w-[1.8vw] h-[1.8vw] text-white" />
+            </button>
+          </div>
           <div className="max-w-[60vw] mx-auto py-[5vw] px-[2vw]">
             <h3 className="text-[2.6vw] font-semibold mb-[1vw] leading-tight">{movie.title}</h3>
             {movie.title_alt && <div className="text-[2.2vw] font-regular text-zinc-400 mb-[2vw] leading-snug">{movie.title_alt}</div>}
@@ -1900,7 +1923,7 @@ const Modal = ({ movie, onClose }) => {
 
           {/* Description truncated + more button */}
           <div className="text-zinc-300 text-[1.6vw] font-regular leading-snug mb-[2.6vw] font-light mix-blend-plus-lighter">
-            <div ref={descRef} className="line-clamp-3">{movie.description || FEATURED_MOVIE.description}</div>
+            <div ref={descRef} className="line-clamp-4">{movie.description || FEATURED_MOVIE.description}</div>
             {movie.description && hasMoreDesc && (
               <button
                 type="button"
