@@ -1593,6 +1593,10 @@ const Modal = ({ movie, onClose }) => {
           if (now - epNavThrottleRef.current < 150) return;
           epNavThrottleRef.current = now;
         }
+
+        // If already at Close button, stay there when pressing Up
+        if (focusClose) return;
+
         // If already at More, go to X; if on buttons and no More, go to X directly
         if (focusMore || (!hasMoreDesc && !focusClose && epFocus === -1)) {
           setFocusMore(false);
