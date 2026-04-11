@@ -1514,7 +1514,12 @@ const Modal = ({ movie, onClose }) => {
           const cols = 3;
           const max = movie.episodes.length - 1;
           const col = epFocus % cols;
-          if (col < cols - 1 && epFocus + 1 <= max) setEpFocus(epFocus + 1);
+          if (col < cols - 1 && epFocus + 1 <= max) {
+            setEpFocus(epFocus + 1);
+          } else if (col === cols - 1 && epFocus + 1 <= max) {
+            // Wrap to first column of next row
+            setEpFocus(epFocus + 1);
+          }
           return;
         }
         if (focusMore) {
@@ -1537,7 +1542,12 @@ const Modal = ({ movie, onClose }) => {
         if (isSeries && epFocus >= 0 && Array.isArray(movie?.episodes)) {
           const cols = 3;
           const col = epFocus % cols;
-          if (col > 0) setEpFocus(epFocus - 1);
+          if (col > 0) {
+            setEpFocus(epFocus - 1);
+          } else if (col === 0 && epFocus - 1 >= 0) {
+            // Wrap to last column of previous row
+            setEpFocus(epFocus - 1);
+          }
           return;
         }
         if (focusMore) {
@@ -1545,7 +1555,8 @@ const Modal = ({ movie, onClose }) => {
         } else {
           // From 'เล่นเลย' move left to 'เพิ่มเติม' (movie mode)
           if (!isSeries && activeBtn === 0 && hasMoreDesc) setFocusMore(true);
-          else setActiveBtn(0);
+          else if (!isSeries) setActiveBtn(0);
+          // In series mode with only trailer button, do nothing on Left
         }
       }
       else if (e.key === 'ArrowDown') {
